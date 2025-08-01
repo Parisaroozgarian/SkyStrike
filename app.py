@@ -613,5 +613,88 @@ def activate_countermeasure():
     
     return jsonify({'status': 'success', 'message': 'Countermeasure activated'})
 
+@app.route('/api/fleet_attack', methods=['POST'])
+def fleet_attack():
+    """API endpoint for coordinated fleet-wide attacks"""
+    data = request.get_json()
+    attack_scenario = data.get('attack_scenario')
+    
+    timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    affected_aircraft = []
+    
+    if attack_scenario == 'coordinated_jamming':
+        # Jam radio communications for all aircraft
+        for aircraft_id in aircraft_fleet.keys():
+            aircraft_fleet[aircraft_id]['communications']['signal_strength'] = 0
+            aircraft_fleet[aircraft_id]['communications']['last_message'] = "SIGNAL LOST - COORDINATED JAMMING"
+            aircraft_fleet[aircraft_id]['communications']['status'] = 'compromised'
+            aircraft_fleet[aircraft_id]['communications']['compromised'] = True
+            affected_aircraft.append(f"{aircraft_fleet[aircraft_id]['callsign']}")
+        
+        threat_log.append({
+            'timestamp': timestamp,
+            'system': 'Fleet Communications',
+            'attack': 'Coordinated Radio Jamming',
+            'description': f'Simultaneous radio jamming attack targeting entire fleet: {", ".join(affected_aircraft)}',
+            'severity': 'Critical'
+        })
+        
+    elif attack_scenario == 'adsb_spoofing_campaign':
+        # Spoof ADS-B data for all aircraft
+        import random
+        for aircraft_id in aircraft_fleet.keys():
+            aircraft_fleet[aircraft_id]['adsb']['latitude'] += random.uniform(-0.5, 0.5)
+            aircraft_fleet[aircraft_id]['adsb']['longitude'] += random.uniform(-0.5, 0.5)
+            aircraft_fleet[aircraft_id]['adsb']['altitude'] += random.randint(-2000, 2000)
+            aircraft_fleet[aircraft_id]['adsb']['status'] = 'compromised'
+            aircraft_fleet[aircraft_id]['adsb']['compromised'] = True
+            affected_aircraft.append(f"{aircraft_fleet[aircraft_id]['callsign']}")
+        
+        threat_log.append({
+            'timestamp': timestamp,
+            'system': 'Fleet ADS-B',
+            'attack': 'Coordinated ADS-B Spoofing',
+            'description': f'GPS spoofing campaign creating false positions for entire fleet: {", ".join(affected_aircraft)}',
+            'severity': 'Critical'
+        })
+        
+    elif attack_scenario == 'multi_vector_assault':
+        # Multi-system attack on all aircraft
+        import random
+        for aircraft_id in aircraft_fleet.keys():
+            # ADS-B compromise
+            aircraft_fleet[aircraft_id]['adsb']['latitude'] += random.uniform(-1.0, 1.0)
+            aircraft_fleet[aircraft_id]['adsb']['altitude'] += random.randint(-3000, 3000)
+            aircraft_fleet[aircraft_id]['adsb']['status'] = 'compromised'
+            aircraft_fleet[aircraft_id]['adsb']['compromised'] = True
+            
+            # Flight control compromise
+            aircraft_fleet[aircraft_id]['flight_control']['aileron'] = random.randint(-30, 30)
+            aircraft_fleet[aircraft_id]['flight_control']['elevator'] = random.randint(-15, 15)
+            aircraft_fleet[aircraft_id]['flight_control']['status'] = 'compromised'
+            aircraft_fleet[aircraft_id]['flight_control']['compromised'] = True
+            
+            # Communications compromise
+            aircraft_fleet[aircraft_id]['communications']['signal_strength'] = random.randint(0, 30)
+            aircraft_fleet[aircraft_id]['communications']['last_message'] = "MAYDAY - MULTIPLE SYSTEMS COMPROMISED"
+            aircraft_fleet[aircraft_id]['communications']['status'] = 'compromised'
+            aircraft_fleet[aircraft_id]['communications']['compromised'] = True
+            
+            affected_aircraft.append(f"{aircraft_fleet[aircraft_id]['callsign']}")
+        
+        threat_log.append({
+            'timestamp': timestamp,
+            'system': 'Fleet-Wide',
+            'attack': 'Multi-Vector Assault',
+            'description': f'Advanced persistent threat targeting all systems across fleet: {", ".join(affected_aircraft)}',
+            'severity': 'Critical'
+        })
+    
+    return jsonify({
+        'status': 'success', 
+        'message': f'Fleet attack "{attack_scenario}" executed successfully',
+        'affected_aircraft': affected_aircraft
+    })
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

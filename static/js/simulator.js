@@ -545,6 +545,39 @@ class AviationSimulator {
             this.showNotification('Error selecting aircraft', 'danger');
         }
     }
+
+    async simulateFleetAttack(attackScenario) {
+        try {
+            const response = await fetch('/api/fleet_attack', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    attack_scenario: attackScenario
+                })
+            });
+            
+            const result = await response.json();
+            
+            if (result.status === 'success') {
+                this.showNotification(`Fleet attack launched: ${result.affected_aircraft.join(', ')} affected`, 'warning');
+                
+                // If in fleet view, update immediately
+                if (this.fleetView) {
+                    this.updateFleetStatus();
+                } else {
+                    this.updateSystemStatus();
+                }
+            } else {
+                this.showNotification('Fleet attack failed', 'danger');
+            }
+            
+        } catch (error) {
+            console.error('Error launching fleet attack:', error);
+            this.showNotification('Error launching fleet attack', 'danger');
+        }
+    }
 }
 
 // Global functions for onclick handlers
@@ -563,6 +596,10 @@ function activateCountermeasure(countermeasure) {
 function selectAircraftFromFleet(aircraftId) {
     window.aviationSimulator.selectAircraft(aircraftId);
     window.aviationSimulator.toggleFleetView(); // Switch back to individual view
+}
+
+function simulateFleetAttack(attackScenario) {
+    window.aviationSimulator.simulateFleetAttack(attackScenario);
 }
 
 // Initialize simulator when DOM is loaded
