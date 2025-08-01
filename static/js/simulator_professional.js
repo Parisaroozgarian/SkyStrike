@@ -585,6 +585,75 @@ class ProfessionalSimulator {
         }
     }
 
+    async activateCountermeasure(countermeasure) {
+        try {
+            const response = await fetch('/api/activate_countermeasure', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'same-origin',
+                body: JSON.stringify({
+                    countermeasure: countermeasure,
+                    aircraft_id: this.currentAircraft
+                })
+            });
+            
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            
+            const data = await response.json();
+            
+            if (data.status === 'success') {
+                this.showNotification(`Countermeasure activated: ${countermeasure}`, 'success');
+                this.updateSystemStatus();
+            } else {
+                this.showNotification(`Countermeasure failed: ${data.message}`, 'error');
+            }
+            
+        } catch (error) {
+            console.error('Error activating countermeasure:', error);
+            this.showNotification('Error activating countermeasure', 'error');
+        }
+    }
+
+    async simulateFleetAttack(attackScenario) {
+        try {
+            const response = await fetch('/api/fleet_attack', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'same-origin',
+                body: JSON.stringify({
+                    attack_scenario: attackScenario
+                })
+            });
+            
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            
+            const data = await response.json();
+            
+            if (data.status === 'success') {
+                this.showNotification(`Fleet attack executed: ${attackScenario}`, 'warning');
+                if (this.fleetView) {
+                    this.updateFleetStatus();
+                } else {
+                    this.updateSystemStatus();
+                }
+            } else {
+                this.showNotification(`Fleet attack failed: ${data.message}`, 'error');
+            }
+            
+        } catch (error) {
+            console.error('Error executing fleet attack:', error);
+            this.showNotification('Error executing fleet attack', 'error');
+        }
+    }
+
     showThreatAnalysis(analysis) {
         const modal = new bootstrap.Modal(document.createElement('div'));
         // Could implement a professional threat analysis modal here
@@ -625,6 +694,7 @@ class ProfessionalSimulator {
 // Global functions for template compatibility
 async function simulateAttack(system, attackType) {
     try {
+        const simulator = window.professionalSimulator || professionalSimulator;
         const response = await fetch('/api/simulate_attack', {
             method: 'POST',
             headers: {
@@ -634,7 +704,7 @@ async function simulateAttack(system, attackType) {
             body: JSON.stringify({
                 system: system,
                 attack_type: attackType,
-                aircraft_id: professionalSimulator ? professionalSimulator.currentAircraft : 'aircraft_1'
+                aircraft_id: simulator ? simulator.currentAircraft : 'aircraft_1'
             })
         });
         
@@ -645,29 +715,29 @@ async function simulateAttack(system, attackType) {
         const data = await response.json();
         
         if (data.status === 'success') {
-            if (professionalSimulator) {
-                professionalSimulator.showNotification(`Attack executed: ${attackType} on ${data.aircraft}`, 'warning');
-            }
-            // Trigger immediate update
-            if (professionalSimulator) {
-                professionalSimulator.updateSystemStatus();
+            if (simulator) {
+                simulator.showNotification(`Attack executed: ${attackType} on ${data.aircraft}`, 'warning');
+                // Trigger immediate update
+                simulator.updateSystemStatus();
             }
         } else {
-            if (professionalSimulator) {
-                professionalSimulator.showNotification(`Attack failed: ${data.message}`, 'error');
+            if (simulator) {
+                simulator.showNotification(`Attack failed: ${data.message}`, 'error');
             }
         }
         
     } catch (error) {
         console.error('Error simulating attack:', error);
-        if (professionalSimulator) {
-            professionalSimulator.showNotification('Error simulating attack', 'error');
+        const simulator = window.professionalSimulator || professionalSimulator;
+        if (simulator) {
+            simulator.showNotification('Error simulating attack', 'error');
         }
     }
 }
 
 async function resetSystem(system) {
     try {
+        const simulator = window.professionalSimulator || professionalSimulator;
         const response = await fetch('/api/reset_system', {
             method: 'POST',
             headers: {
@@ -676,7 +746,7 @@ async function resetSystem(system) {
             credentials: 'same-origin',
             body: JSON.stringify({
                 system: system,
-                aircraft_id: professionalSimulator ? professionalSimulator.currentAircraft : 'aircraft_1'
+                aircraft_id: simulator ? simulator.currentAircraft : 'aircraft_1'
             })
         });
         
@@ -687,27 +757,54 @@ async function resetSystem(system) {
         const data = await response.json();
         
         if (data.status === 'success') {
-            if (professionalSimulator) {
-                professionalSimulator.showNotification(`${system} system reset successfully`, 'success');
+            if (simulator) {
+                simulator.showNotification(`${system} system reset successfully`, 'success');
                 // Trigger immediate update
-                professionalSimulator.updateSystemStatus();
+                simulator.updateSystemStatus();
             }
         } else {
-            if (professionalSimulator) {
-                professionalSimulator.showNotification(`Reset failed: ${data.message}`, 'error');
+            if (simulator) {
+                simulator.showNotification(`Reset failed: ${data.message}`, 'error');
             }
         }
         
     } catch (error) {
         console.error('Error resetting system:', error);
-        if (professionalSimulator) {
-            professionalSimulator.showNotification('Error resetting system', 'error');
+        const simulator = window.professionalSimulator || professionalSimulator;
+        if (simulator) {
+            simulator.showNotification('Error resetting system', 'error');
         }
     }
 }
 
 async function analyzeThreats() {
-    await professionalSimulator.analyzeThreats();
+    const simulator = window.professionalSimulator || professionalSimulator;
+    if (simulator) {
+        await simulator.analyzeThreats();
+    }
+}
+
+// Additional global functions for template compatibility
+async function activateCountermeasure(countermeasure) {
+    const simulator = window.professionalSimulator || professionalSimulator;
+    if (simulator) {
+        await simulator.activateCountermeasure(countermeasure);
+    }
+}
+
+function selectAircraftFromFleet(aircraftId) {
+    const simulator = window.professionalSimulator || professionalSimulator;
+    if (simulator) {
+        simulator.selectAircraft(aircraftId);
+        simulator.toggleFleetView(); // Switch back to individual view
+    }
+}
+
+async function simulateFleetAttack(attackScenario) {
+    const simulator = window.professionalSimulator || professionalSimulator;
+    if (simulator) {
+        await simulator.simulateFleetAttack(attackScenario);
+    }
 }
 
 // Global instance
