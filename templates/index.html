@@ -18,19 +18,53 @@
                         <i class="fas fa-plane me-2"></i>
                         Aircraft Systems Threat Simulator
                     </h1>
-                    <div>
-                        <button id="resetAllBtn" class="btn btn-warning me-2">
-                            <i class="fas fa-undo me-1"></i>Reset All Systems
-                        </button>
-                        <button id="clearLogBtn" class="btn btn-secondary">
-                            <i class="fas fa-trash me-1"></i>Clear Log
-                        </button>
+                    <div class="d-flex align-items-center">
+                        <div class="me-3">
+                            <label class="form-label me-2 mb-0">Aircraft:</label>
+                            <select id="aircraftSelector" class="form-select form-select-sm" style="width: auto; display: inline-block;">
+                                <option value="aircraft_1">AAL123 (Boeing 737)</option>
+                                <option value="aircraft_2">UAL456 (Airbus A320)</option>
+                                <option value="aircraft_3">DLH789 (Boeing 777)</option>
+                            </select>
+                        </div>
+                        <div class="me-3">
+                            <button id="fleetViewBtn" class="btn btn-primary btn-sm">
+                                <i class="fas fa-list me-1"></i>Fleet View
+                            </button>
+                        </div>
+                        <div>
+                            <button id="resetAllBtn" class="btn btn-warning btn-sm me-2">
+                                <i class="fas fa-undo me-1"></i>Reset All Systems
+                            </button>
+                            <button id="clearLogBtn" class="btn btn-secondary btn-sm">
+                                <i class="fas fa-trash me-1"></i>Clear Log
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="row">
+        <!-- Fleet Overview Panel (hidden by default) -->
+        <div class="row" id="fleetOverview" style="display: none;">
+            <div class="col-12">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-list me-2"></i>Fleet Overview
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row" id="fleetGrid">
+                            <!-- Fleet aircraft cards will be populated here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Individual Aircraft View (shown by default) -->
+        <div class="row" id="individualView">
             <!-- System Status Panels -->
             <div class="col-lg-8">
                 <div class="row">

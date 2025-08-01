@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Aircraft Systems Threat Simulator is a cybersecurity training application designed to simulate potential cyber threats to aircraft systems. It provides a real-time dashboard for monitoring critical aircraft systems including ADS-B (Automatic Dependent Surveillance-Broadcast), flight controls, and communications. The simulator allows users to observe system states, simulate cyber attacks, and analyze threat patterns in a controlled environment for educational and training purposes.
+The Aircraft Systems Threat Simulator is a comprehensive cybersecurity training application designed to simulate potential cyber threats to aircraft systems. It provides real-time monitoring of multiple aircraft simultaneously, including critical systems like ADS-B (Automatic Dependent Surveillance-Broadcast), flight controls, and communications. The simulator supports both individual aircraft analysis and fleet-wide monitoring, allowing users to observe system states, simulate sophisticated cyber attacks, deploy defense mechanisms, and analyze threat patterns across multiple aircraft in a controlled environment for educational and training purposes.
 
 ## User Preferences
 
@@ -45,6 +45,13 @@ Preferred communication style: Simple, everyday language.
 - **Encryption System**: Protects communications with automatic key rotation capabilities
 - **Backup Systems**: Redundant systems that activate when primary systems are compromised
 - **Emergency Countermeasures**: Manual override protocols including system isolation and backup navigation
+
+## Multi-Aircraft Fleet Management
+- **Fleet Overview**: Real-time monitoring dashboard showing status of all aircraft simultaneously
+- **Individual Aircraft Selection**: Detailed system analysis and control for specific aircraft
+- **Cross-Fleet Threat Analysis**: Centralized threat logging and analysis across entire fleet
+- **Aircraft Fleet**: AAL123 (Boeing 737), UAL456 (Airbus A320), DLH789 (Boeing 777)
+- **Scalable Architecture**: Support for monitoring and attacking multiple aircraft with independent system states
 
 ## External Dependencies
 

@@ -3,6 +3,8 @@
 class AviationSimulator {
     constructor() {
         this.updateInterval = null;
+        this.fleetView = false;
+        this.currentAircraft = 'aircraft_1';
         this.init();
     }
 
@@ -38,12 +40,26 @@ class AviationSimulator {
                 this.toggleDefense(defenseType, enabled);
             });
         });
+
+        // Aircraft selector
+        document.getElementById('aircraftSelector').addEventListener('change', (e) => {
+            this.selectAircraft(e.target.value);
+        });
+
+        // Fleet view toggle
+        document.getElementById('fleetViewBtn').addEventListener('click', () => {
+            this.toggleFleetView();
+        });
     }
 
     startUpdates() {
         // Update system status every 2 seconds
         this.updateInterval = setInterval(() => {
-            this.updateSystemStatus();
+            if (this.fleetView) {
+                this.updateFleetStatus();
+            } else {
+                this.updateSystemStatus();
+            }
         }, 2000);
     }
 
@@ -399,6 +415,136 @@ class AviationSimulator {
             }
         }, 5000);
     }
+
+    async updateFleetStatus() {
+        try {
+            const response = await fetch('/api/fleet_status');
+            const data = await response.json();
+            
+            this.updateFleetDisplay(data.aircraft_fleet);
+            this.updateThreatLog(data.threat_log);
+            
+        } catch (error) {
+            console.error('Error updating fleet status:', error);
+        }
+    }
+
+    updateFleetDisplay(aircraftFleet) {
+        const fleetGrid = document.getElementById('fleetGrid');
+        fleetGrid.innerHTML = '';
+
+        Object.keys(aircraftFleet).forEach(aircraftId => {
+            const aircraft = aircraftFleet[aircraftId];
+            const card = document.createElement('div');
+            card.className = 'col-md-4 mb-3';
+            
+            const compromisedSystems = [
+                aircraft.adsb.compromised ? 'ADS-B' : null,
+                aircraft.flight_control.compromised ? 'Flight Control' : null,
+                aircraft.communications.compromised ? 'Communications' : null
+            ].filter(Boolean);
+
+            const statusClass = compromisedSystems.length > 0 ? 'border-danger' : 'border-success';
+            const statusBadge = compromisedSystems.length > 0 ? 
+                `<span class="badge bg-danger">${compromisedSystems.length} Compromised</span>` :
+                `<span class="badge bg-success">All Normal</span>`;
+
+            card.innerHTML = `
+                <div class="card h-100 ${statusClass}" style="border-width: 2px;">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0">${aircraft.callsign}</h6>
+                        ${statusBadge}
+                    </div>
+                    <div class="card-body">
+                        <small class="text-muted d-block mb-2">${aircraft.model}</small>
+                        <div class="row">
+                            <div class="col-6">
+                                <small class="d-block">
+                                    <strong>Position:</strong><br>
+                                    ${aircraft.adsb.latitude.toFixed(2)}°, ${aircraft.adsb.longitude.toFixed(2)}°
+                                </small>
+                                <small class="d-block">
+                                    <strong>Altitude:</strong><br>
+                                    ${aircraft.adsb.altitude} ft
+                                </small>
+                            </div>
+                            <div class="col-6">
+                                <small class="d-block">
+                                    <strong>Speed:</strong><br>
+                                    ${aircraft.adsb.speed} kts
+                                </small>
+                                <small class="d-block">
+                                    <strong>Frequency:</strong><br>
+                                    ${aircraft.communications.frequency} MHz
+                                </small>
+                            </div>
+                        </div>
+                        ${compromisedSystems.length > 0 ? 
+                            `<div class="mt-2"><small class="text-danger">Compromised: ${compromisedSystems.join(', ')}</small></div>` : 
+                            ''}
+                        <div class="mt-3">
+                            <button class="btn btn-sm btn-primary w-100" onclick="selectAircraftFromFleet('${aircraftId}')">
+                                <i class="fas fa-crosshairs me-1"></i>Select Aircraft
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            fleetGrid.appendChild(card);
+        });
+    }
+
+    toggleFleetView() {
+        this.fleetView = !this.fleetView;
+        const fleetOverview = document.getElementById('fleetOverview');
+        const individualView = document.getElementById('individualView');
+        const fleetViewBtn = document.getElementById('fleetViewBtn');
+
+        if (this.fleetView) {
+            fleetOverview.style.display = 'block';
+            individualView.style.display = 'none';
+            fleetViewBtn.innerHTML = '<i class="fas fa-plane me-1"></i>Individual View';
+            this.updateFleetStatus();
+        } else {
+            fleetOverview.style.display = 'none';
+            individualView.style.display = 'block';
+            fleetViewBtn.innerHTML = '<i class="fas fa-list me-1"></i>Fleet View';
+            this.updateSystemStatus();
+        }
+    }
+
+    async selectAircraft(aircraftId) {
+        try {
+            const response = await fetch('/api/select_aircraft', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    aircraft_id: aircraftId
+                })
+            });
+            
+            const result = await response.json();
+            
+            if (result.status === 'success') {
+                this.currentAircraft = aircraftId;
+                document.getElementById('aircraftSelector').value = aircraftId;
+                
+                // Force immediate update
+                await this.updateSystemStatus();
+                
+                this.showNotification(`Selected ${result.message}`, 'info');
+            } else {
+                this.showNotification('Failed to select aircraft', 'danger');
+            }
+            
+        } catch (error) {
+            console.error('Error selecting aircraft:', error);
+            this.showNotification('Error selecting aircraft', 'danger');
+        }
+    }
 }
 
 // Global functions for onclick handlers
@@ -412,6 +558,11 @@ function resetSystem(system) {
 
 function activateCountermeasure(countermeasure) {
     window.aviationSimulator.activateCountermeasure(countermeasure);
+}
+
+function selectAircraftFromFleet(aircraftId) {
+    window.aviationSimulator.selectAircraft(aircraftId);
+    window.aviationSimulator.toggleFleetView(); // Switch back to individual view
 }
 
 // Initialize simulator when DOM is loaded

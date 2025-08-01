@@ -10,33 +10,99 @@ logging.basicConfig(level=logging.DEBUG)
 app = Flask(__name__)
 app.secret_key = os.environ.get("SESSION_SECRET", "aviation_simulator_secret_key")
 
-# System states storage
-system_states = {
-    "adsb": {
-        "status": "normal",
-        "latitude": 40.7128,
-        "longitude": -74.0060,
-        "altitude": 35000,
-        "heading": 90,
-        "speed": 450,
-        "compromised": False
+# Multi-aircraft system states storage
+aircraft_fleet = {
+    "aircraft_1": {
+        "callsign": "AAL123",
+        "model": "Boeing 737",
+        "adsb": {
+            "status": "normal",
+            "latitude": 40.7128,
+            "longitude": -74.0060,
+            "altitude": 35000,
+            "heading": 90,
+            "speed": 450,
+            "compromised": False
+        },
+        "flight_control": {
+            "status": "normal",
+            "aileron": 0,
+            "elevator": 0,
+            "rudder": 0,
+            "throttle": 75,
+            "compromised": False
+        },
+        "communications": {
+            "status": "normal",
+            "frequency": 121.5,
+            "last_message": "All systems nominal",
+            "signal_strength": 85,
+            "compromised": False
+        }
     },
-    "flight_control": {
-        "status": "normal",
-        "aileron": 0,
-        "elevator": 0,
-        "rudder": 0,
-        "throttle": 75,
-        "compromised": False
+    "aircraft_2": {
+        "callsign": "UAL456",
+        "model": "Airbus A320",
+        "adsb": {
+            "status": "normal",
+            "latitude": 41.8781,
+            "longitude": -87.6298,
+            "altitude": 32000,
+            "heading": 180,
+            "speed": 420,
+            "compromised": False
+        },
+        "flight_control": {
+            "status": "normal",
+            "aileron": 0,
+            "elevator": 0,
+            "rudder": 0,
+            "throttle": 70,
+            "compromised": False
+        },
+        "communications": {
+            "status": "normal",
+            "frequency": 122.8,
+            "last_message": "Chicago approach, level 320",
+            "signal_strength": 90,
+            "compromised": False
+        }
     },
-    "communications": {
-        "status": "normal",
-        "frequency": 121.5,
-        "last_message": "All systems nominal",
-        "signal_strength": 85,
-        "compromised": False
+    "aircraft_3": {
+        "callsign": "DLH789",
+        "model": "Boeing 777",
+        "adsb": {
+            "status": "normal",
+            "latitude": 51.4700,
+            "longitude": -0.4543,
+            "altitude": 41000,
+            "heading": 270,
+            "speed": 480,
+            "compromised": False
+        },
+        "flight_control": {
+            "status": "normal",
+            "aileron": 0,
+            "elevator": 0,
+            "rudder": 0,
+            "throttle": 80,
+            "compromised": False
+        },
+        "communications": {
+            "status": "normal",
+            "frequency": 118.5,
+            "last_message": "London control, crossing waypoint TIGER",
+            "signal_strength": 88,
+            "compromised": False
+        }
     }
 }
+
+# Current selected aircraft for single-aircraft view compatibility
+current_aircraft = "aircraft_1"
+
+# Legacy system states for backward compatibility
+system_states = aircraft_fleet[current_aircraft]
 
 # Defense system states
 defense_systems = {
@@ -141,8 +207,44 @@ def get_system_status():
     return jsonify({
         'systems': system_states,
         'defense_systems': defense_systems,
-        'threat_log': threat_log[-10:]  # Last 10 entries
+        'threat_log': threat_log[-10:],  # Last 10 entries
+        'aircraft_fleet': aircraft_fleet,
+        'current_aircraft': current_aircraft
     })
+
+@app.route('/api/fleet_status')
+def get_fleet_status():
+    """API endpoint to get all aircraft fleet status"""
+    return jsonify({
+        'aircraft_fleet': aircraft_fleet,
+        'defense_systems': defense_systems,
+        'threat_log': threat_log[-20:],  # More entries for fleet view
+        'current_aircraft': current_aircraft
+    })
+
+@app.route('/api/select_aircraft', methods=['POST'])
+def select_aircraft():
+    """API endpoint to select a specific aircraft for detailed view"""
+    global current_aircraft, system_states
+    data = request.get_json()
+    aircraft_id = data.get('aircraft_id')
+    
+    if aircraft_id in aircraft_fleet:
+        current_aircraft = aircraft_id
+        system_states = aircraft_fleet[current_aircraft]
+        
+        timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        threat_log.append({
+            'timestamp': timestamp,
+            'system': 'Flight Operations',
+            'attack': 'Aircraft Selection',
+            'description': f'Switched monitoring to {aircraft_fleet[aircraft_id]["callsign"]} ({aircraft_fleet[aircraft_id]["model"]})',
+            'severity': 'Info'
+        })
+        
+        return jsonify({'status': 'success', 'message': f'Selected {aircraft_fleet[aircraft_id]["callsign"]}'})
+    
+    return jsonify({'status': 'error', 'message': 'Invalid aircraft ID'})
 
 @app.route('/api/simulate_attack', methods=['POST'])
 def simulate_attack():
@@ -150,190 +252,198 @@ def simulate_attack():
     data = request.get_json()
     system = data.get('system')
     attack_type = data.get('attack_type')
+    target_aircraft = data.get('aircraft_id', current_aircraft)  # Allow targeting specific aircraft
     
     timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     
+    # Get target aircraft data
+    if target_aircraft not in aircraft_fleet:
+        return jsonify({'status': 'error', 'message': 'Invalid aircraft ID'})
+    
+    target_systems = aircraft_fleet[target_aircraft]
+    aircraft_info = f"{target_systems['callsign']} ({target_systems['model']})"
+    
     if system == 'adsb':
         if attack_type == 'spoof_location':
-            system_states['adsb']['latitude'] = 51.5074  # London coordinates
-            system_states['adsb']['longitude'] = -0.1278
-            system_states['adsb']['status'] = 'compromised'
-            system_states['adsb']['compromised'] = True
+            target_systems['adsb']['latitude'] = 51.5074  # London coordinates
+            target_systems['adsb']['longitude'] = -0.1278
+            target_systems['adsb']['status'] = 'compromised'
+            target_systems['adsb']['compromised'] = True
             
             threat_log.append({
                 'timestamp': timestamp,
                 'system': 'ADS-B',
                 'attack': 'Location Spoofing',
-                'description': 'Aircraft location spoofed to London coordinates',
+                'description': f'{aircraft_info} location spoofed to London coordinates',
                 'severity': 'High'
             })
             
         elif attack_type == 'spoof_altitude':
-            system_states['adsb']['altitude'] = 5000  # Dangerous low altitude
-            system_states['adsb']['status'] = 'compromised'
-            system_states['adsb']['compromised'] = True
+            target_systems['adsb']['altitude'] = 5000  # Dangerous low altitude
+            target_systems['adsb']['status'] = 'compromised'
+            target_systems['adsb']['compromised'] = True
             
             threat_log.append({
                 'timestamp': timestamp,
                 'system': 'ADS-B',
                 'attack': 'Altitude Spoofing',
-                'description': 'Aircraft altitude spoofed to dangerous low level',
+                'description': f'{aircraft_info} altitude spoofed to dangerous low level',
                 'severity': 'Critical'
             })
             
         elif attack_type == 'mitm_adsb':
             # Man-in-the-middle attack on ADS-B data
-            original_lat = system_states['adsb']['latitude']
-            original_lon = system_states['adsb']['longitude']
-            system_states['adsb']['latitude'] = original_lat + 0.5  # Slight position shift
-            system_states['adsb']['longitude'] = original_lon + 0.5
-            system_states['adsb']['heading'] = (system_states['adsb']['heading'] + 45) % 360
-            system_states['adsb']['status'] = 'compromised'
-            system_states['adsb']['compromised'] = True
+            original_lat = target_systems['adsb']['latitude']
+            original_lon = target_systems['adsb']['longitude']
+            target_systems['adsb']['latitude'] = original_lat + 0.5  # Slight position shift
+            target_systems['adsb']['longitude'] = original_lon + 0.5
+            target_systems['adsb']['heading'] = (target_systems['adsb']['heading'] + 45) % 360
+            target_systems['adsb']['status'] = 'compromised'
+            target_systems['adsb']['compromised'] = True
             
             threat_log.append({
                 'timestamp': timestamp,
                 'system': 'ADS-B',
                 'attack': 'Man-in-the-Middle',
-                'description': 'ADS-B transponder compromised - intercepting and modifying position data',
+                'description': f'{aircraft_info} ADS-B transponder compromised - intercepting and modifying position data',
                 'severity': 'Critical'
             })
             
         elif attack_type == 'replay_adsb':
             # Replay attack using old position data
-            system_states['adsb']['latitude'] = 40.7128  # NYC coordinates (old data)
-            system_states['adsb']['longitude'] = -74.0060
-            system_states['adsb']['altitude'] = 25000
-            system_states['adsb']['heading'] = 270
-            system_states['adsb']['speed'] = 350
-            system_states['adsb']['status'] = 'compromised'
-            system_states['adsb']['compromised'] = True
+            target_systems['adsb']['latitude'] = 40.7128  # NYC coordinates (old data)
+            target_systems['adsb']['longitude'] = -74.0060
+            target_systems['adsb']['altitude'] = 25000
+            target_systems['adsb']['heading'] = 270
+            target_systems['adsb']['speed'] = 350
+            target_systems['adsb']['status'] = 'compromised'
+            target_systems['adsb']['compromised'] = True
             
             threat_log.append({
                 'timestamp': timestamp,
                 'system': 'ADS-B',
                 'attack': 'Replay Attack',
-                'description': 'Replaying old ADS-B transmissions - aircraft appears at previous location',
+                'description': f'{aircraft_info} replaying old ADS-B transmissions - aircraft appears at previous location',
                 'severity': 'High'
             })
     
     elif system == 'flight_control':
         if attack_type == 'jam_inputs':
-            system_states['flight_control']['aileron'] = -45  # Extreme bank
-            system_states['flight_control']['elevator'] = 30  # Nose up
-            system_states['flight_control']['status'] = 'compromised'
-            system_states['flight_control']['compromised'] = True
+            target_systems['flight_control']['aileron'] = -45  # Extreme bank
+            target_systems['flight_control']['elevator'] = 30  # Nose up
+            target_systems['flight_control']['status'] = 'compromised'
+            target_systems['flight_control']['compromised'] = True
             
             threat_log.append({
                 'timestamp': timestamp,
                 'system': 'Flight Control',
                 'attack': 'Control Input Jamming',
-                'description': 'Flight control inputs jammed with extreme values',
+                'description': f'{aircraft_info} flight control inputs jammed with extreme values',
                 'severity': 'Critical'
             })
             
         elif attack_type == 'freeze_controls':
             # Controls frozen at current position
-            system_states['flight_control']['status'] = 'compromised'
-            system_states['flight_control']['compromised'] = True
+            target_systems['flight_control']['status'] = 'compromised'
+            target_systems['flight_control']['compromised'] = True
             
             threat_log.append({
                 'timestamp': timestamp,
                 'system': 'Flight Control',
                 'attack': 'Control Freeze',
-                'description': 'Flight controls frozen and unresponsive',
+                'description': f'{aircraft_info} flight controls frozen and unresponsive',
                 'severity': 'High'
             })
             
         elif attack_type == 'mitm_control':
             # Man-in-the-middle attack on control systems
-            system_states['flight_control']['aileron'] = 15  # Subtle but dangerous bank
-            system_states['flight_control']['elevator'] = -10  # Slight nose down
-            system_states['flight_control']['throttle'] = 90  # Increased throttle
-            system_states['flight_control']['status'] = 'compromised'
-            system_states['flight_control']['compromised'] = True
+            target_systems['flight_control']['aileron'] = 15  # Subtle but dangerous bank
+            target_systems['flight_control']['elevator'] = -10  # Slight nose down
+            target_systems['flight_control']['throttle'] = 90  # Increased throttle
+            target_systems['flight_control']['status'] = 'compromised'
+            target_systems['flight_control']['compromised'] = True
             
             threat_log.append({
                 'timestamp': timestamp,
                 'system': 'Flight Control',
                 'attack': 'Man-in-the-Middle',
-                'description': 'Flight control bus compromised - intercepting and modifying pilot inputs',
+                'description': f'{aircraft_info} flight control bus compromised - intercepting and modifying pilot inputs',
                 'severity': 'Critical'
             })
             
         elif attack_type == 'replay_control':
             # Replay previous control commands
-            system_states['flight_control']['aileron'] = -20
-            system_states['flight_control']['elevator'] = 5
-            system_states['flight_control']['rudder'] = 10
-            system_states['flight_control']['throttle'] = 60
-            system_states['flight_control']['status'] = 'compromised'
-            system_states['flight_control']['compromised'] = True
+            target_systems['flight_control']['aileron'] = -20
+            target_systems['flight_control']['elevator'] = 5
+            target_systems['flight_control']['rudder'] = 10
+            target_systems['flight_control']['throttle'] = 60
+            target_systems['flight_control']['status'] = 'compromised'
+            target_systems['flight_control']['compromised'] = True
             
             threat_log.append({
                 'timestamp': timestamp,
                 'system': 'Flight Control',
                 'attack': 'Replay Attack',
-                'description': 'Replaying previous control commands - aircraft executing old maneuvers',
+                'description': f'{aircraft_info} replaying previous control commands - aircraft executing old maneuvers',
                 'severity': 'High'
             })
     
     elif system == 'communications':
         if attack_type == 'inject_message':
-            system_states['communications']['last_message'] = "MAYDAY MAYDAY - HIJACK IN PROGRESS"
-            system_states['communications']['status'] = 'compromised'
-            system_states['communications']['compromised'] = True
+            target_systems['communications']['last_message'] = "MAYDAY MAYDAY - HIJACK IN PROGRESS"
+            target_systems['communications']['status'] = 'compromised'
+            target_systems['communications']['compromised'] = True
             
             threat_log.append({
                 'timestamp': timestamp,
                 'system': 'Communications',
                 'attack': 'Message Injection',
-                'description': 'Fake emergency message injected into radio communications',
+                'description': f'{aircraft_info} fake emergency message injected into radio communications',
                 'severity': 'High'
             })
             
         elif attack_type == 'jam_radio':
-            system_states['communications']['signal_strength'] = 0
-            system_states['communications']['last_message'] = "SIGNAL LOST"
-            system_states['communications']['status'] = 'compromised'
-            system_states['communications']['compromised'] = True
+            target_systems['communications']['signal_strength'] = 0
+            target_systems['communications']['last_message'] = "SIGNAL LOST"
+            target_systems['communications']['status'] = 'compromised'
+            target_systems['communications']['compromised'] = True
             
             threat_log.append({
                 'timestamp': timestamp,
                 'system': 'Communications',
                 'attack': 'Radio Jamming',
-                'description': 'Radio communications jammed - signal lost',
+                'description': f'{aircraft_info} radio communications jammed - signal lost',
                 'severity': 'Medium'
             })
             
         elif attack_type == 'mitm_comms':
             # Man-in-the-middle attack on communications
-            system_states['communications']['last_message'] = "ATC: Proceed to alternate runway 09L [INTERCEPTED]"
-            system_states['communications']['frequency'] = 118.7  # Different frequency
-            system_states['communications']['signal_strength'] = 45  # Reduced signal
-            system_states['communications']['status'] = 'compromised'
-            system_states['communications']['compromised'] = True
+            target_systems['communications']['last_message'] = "ATC: Proceed to alternate runway 09L [INTERCEPTED]"
+            target_systems['communications']['frequency'] = 118.7  # Different frequency
+            target_systems['communications']['signal_strength'] = 45  # Reduced signal
+            target_systems['communications']['status'] = 'compromised'
+            target_systems['communications']['compromised'] = True
             
             threat_log.append({
                 'timestamp': timestamp,
                 'system': 'Communications',
                 'attack': 'Man-in-the-Middle',
-                'description': 'Radio communications intercepted - attacker modifying ATC instructions',
+                'description': f'{aircraft_info} radio communications intercepted - attacker modifying ATC instructions',
                 'severity': 'Critical'
             })
             
         elif attack_type == 'replay_comms':
             # Replay old radio messages
-            system_states['communications']['last_message'] = "ATC: Cleared for takeoff runway 24R [REPLAYED]"
-            system_states['communications']['frequency'] = 120.9
-            system_states['communications']['status'] = 'compromised'
-            system_states['communications']['compromised'] = True
+            target_systems['communications']['last_message'] = "ATC: Cleared for takeoff runway 24R [REPLAYED]"
+            target_systems['communications']['frequency'] = 120.9
+            target_systems['communications']['status'] = 'compromised'
+            target_systems['communications']['compromised'] = True
             
             threat_log.append({
                 'timestamp': timestamp,
                 'system': 'Communications',
                 'attack': 'Replay Attack',
-                'description': 'Replaying old ATC clearances - aircraft receiving outdated instructions',
+                'description': f'{aircraft_info} replaying old ATC clearances - aircraft receiving outdated instructions',
                 'severity': 'High'
             })
     
