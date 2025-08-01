@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aviation Threat Simulator - Documentation</title>
+    <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/professional.css') }}" rel="stylesheet">
+</head>
+<body class="professional-theme">
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark border-bottom">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-book me-2"></i>System Documentation
+            </a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="/">
+                    <i class="fas fa-arrow-left me-1"></i>Back to Simulator
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid mt-3">
+        <div class="row">
+            <div class="col-md-3">
+                <!-- Documentation Navigation -->
+                <div class="card professional-card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Documentation</h5>
+                    </div>
+                    <div class="card-body">
+                        <nav class="nav nav-pills flex-column">
+                            <a class="nav-link active" href="#overview">Overview</a>
+                            <a class="nav-link" href="#architecture">Architecture</a>
+                            <a class="nav-link" href="#api">API Reference</a>
+                            <a class="nav-link" href="#attacks">Attack Vectors</a>
+                            <a class="nav-link" href="#defenses">Defense Systems</a>
+                            <a class="nav-link" href="#configuration">Configuration</a>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-9">
+                <!-- Overview Section -->
+                <section id="overview" class="mb-4">
+                    <div class="card professional-card">
+                        <div class="card-header">
+                            <h4 class="mb-0">
+                                <i class="fas fa-info-circle me-2"></i>System Overview
+                            </h4>
+                        </div>
+                        <div class="card-body">
+                            <p class="lead">
+                                The Aviation Threat Simulator is a Master's-level cybersecurity training platform designed to simulate sophisticated cyber attacks against aircraft systems.
+                            </p>
+                            
+                            <h5 class="mt-4">Key Features</h5>
+                            <ul>
+                                <li><strong>Multi-Aircraft Fleet Management:</strong> Monitor and attack multiple aircraft simultaneously</li>
+                                <li><strong>Realistic Attack Vectors:</strong> GPS spoofing, control surface manipulation, communication jamming</li>
+                                <li><strong>Advanced Defense Systems:</strong> Multi-layered protection with automated response</li>
+                                <li><strong>Professional Analytics:</strong> Comprehensive threat analysis and reporting</li>
+                                <li><strong>Enterprise Architecture:</strong> Scalable, secure, and maintainable codebase</li>
+                            </ul>
+                            
+                            <h5 class="mt-4">System Components</h5>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="metric-group">
+                                        <h6><i class="fas fa-satellite me-2"></i>ADS-B System</h6>
+                                        <p class="small">Automatic Dependent Surveillance-Broadcast transponder simulation</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="metric-group">
+                                        <h6><i class="fas fa-cogs me-2"></i>Flight Control</h6>
+                                        <p class="small">Primary flight control surfaces and autopilot systems</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="metric-group">
+                                        <h6><i class="fas fa-broadcast-tower me-2"></i>Communications</h6>
+                                        <p class="small">VHF radio and data link communication systems</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Architecture Section -->
+                <section id="architecture" class="mb-4">
+                    <div class="card professional-card">
+                        <div class="card-header">
+                            <h4 class="mb-0">
+                                <i class="fas fa-sitemap me-2"></i>System Architecture
+                            </h4>
+                        </div>
+                        <div class="card-body">
+                            <h5>Professional Architecture Pattern</h5>
+                            <p>The application follows enterprise-grade architectural principles:</p>
+                            
+                            <ul>
+                                <li><strong>Application Factory Pattern:</strong> Modular Flask application initialization</li>
+                                <li><strong>Service Layer Architecture:</strong> Separated business logic in dedicated services</li>
+                                <li><strong>Data Model Abstraction:</strong> Professional data classes with validation</li>
+                                <li><strong>Configuration Management:</strong> Environment-based configuration system</li>
+                                <li><strong>Structured Logging:</strong> JSON-based logging with security audit trails</li>
+                                <li><strong>Input Validation:</strong> Comprehensive request validation and sanitization</li>
+                            </ul>
+                            
+                            <h5 class="mt-4">Technology Stack</h5>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6>Backend</h6>
+                                    <ul>
+                                        <li>Flask (Professional Web Framework)</li>
+                                        <li>Python 3.11+ (Latest Features)</li>
+                                        <li>Dataclasses (Type-Safe Models)</li>
+                                        <li>Structured Logging (JSON Format)</li>
+                                    </ul>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6>Frontend</h6>
+                                    <ul>
+                                        <li>Bootstrap 5 (Professional UI)</li>
+                                        <li>Chart.js (Data Visualization)</li>
+                                        <li>Font Awesome (Professional Icons)</li>
+                                        <li>Modern JavaScript (ES6+)</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- API Reference Section -->
+                <section id="api" class="mb-4">
+                    <div class="card professional-card">
+                        <div class="card-header">
+                            <h4 class="mb-0">
+                                <i class="fas fa-code me-2"></i>API Reference
+                            </h4>
+                        </div>
+                        <div class="card-body">
+                            <h5>System Status Endpoints</h5>
+                            <div class="api-endpoint">
+                                <code class="text-success">GET /api/system_status</code>
+                                <p>Retrieve current system status for selected aircraft</p>
+                            </div>
+                            
+                            <div class="api-endpoint">
+                                <code class="text-success">GET /api/fleet_status</code>
+                                <p>Comprehensive fleet-wide status and analytics</p>
+                            </div>
+                            
+                            <h5 class="mt-4">Attack Simulation Endpoints</h5>
+                            <div class="api-endpoint">
+                                <code class="text-warning">POST /api/simulate_attack</code>
+                                <p>Execute cyber attack simulation</p>
+                                <pre class="mt-2 p-2 bg-dark rounded"><code>{
+  "system": "adsb|flight_control|communications",
+  "attack_type": "spoof_location|jam_inputs|inject_message|...",
+  "aircraft_id": "aircraft_1",
+  "parameters": {}
+}</code></pre>
+                            </div>
+                            
+                            <h5 class="mt-4">Defense System Endpoints</h5>
+                            <div class="api-endpoint">
+                                <code class="text-primary">POST /api/reset_system</code>
+                                <p>Reset individual aircraft system</p>
+                            </div>
+                            
+                            <div class="api-endpoint">
+                                <code class="text-primary">POST /api/reset_all</code>
+                                <p>Fleet-wide system reset</p>
+                            </div>
+                            
+                            <div class="api-endpoint">
+                                <code class="text-info">GET /api/threat_analysis</code>
+                                <p>Advanced threat pattern analysis</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Attack Vectors Section -->
+                <section id="attacks" class="mb-4">
+                    <div class="card professional-card">
+                        <div class="card-header">
+                            <h4 class="mb-0">
+                                <i class="fas fa-bug me-2"></i>Attack Vectors
+                            </h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <h5>ADS-B Attacks</h5>
+                                    <ul>
+                                        <li><strong>GPS Spoofing:</strong> False position data</li>
+                                        <li><strong>Altitude Spoofing:</strong> Dangerous altitude reports</li>
+                                        <li><strong>Man-in-the-Middle:</strong> Position data interception</li>
+                                        <li><strong>Replay Attacks:</strong> Historical data replay</li>
+                                    </ul>
+                                </div>
+                                <div class="col-md-4">
+                                    <h5>Flight Control Attacks</h5>
+                                    <ul>
+                                        <li><strong>Input Jamming:</strong> Extreme control positions</li>
+                                        <li><strong>Control Freeze:</strong> Surface position lock</li>
+                                        <li><strong>Bus Interception:</strong> Command modification</li>
+                                        <li><strong>Command Replay:</strong> Previous maneuvers</li>
+                                    </ul>
+                                </div>
+                                <div class="col-md-4">
+                                    <h5>Communication Attacks</h5>
+                                    <ul>
+                                        <li><strong>Message Injection:</strong> False emergency signals</li>
+                                        <li><strong>Radio Jamming:</strong> Communication blackout</li>
+                                        <li><strong>Channel Interception:</strong> ATC impersonation</li>
+                                        <li><strong>Message Replay:</strong> Outdated instructions</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Defense Systems Section -->
+                <section id="defenses" class="mb-4">
+                    <div class="card professional-card">
+                        <div class="card-header">
+                            <h4 class="mb-0">
+                                <i class="fas fa-shield-alt me-2"></i>Defense Systems
+                            </h4>
+                        </div>
+                        <div class="card-body">
+                            <h5>Multi-Layered Defense Framework</h5>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="metric-group">
+                                        <h6><i class="fas fa-search me-2"></i>Intrusion Detection</h6>
+                                        <p>Monitors for unauthorized access and suspicious activities across all aircraft systems.</p>
+                                    </div>
+                                    
+                                    <div class="metric-group">
+                                        <h6><i class="fas fa-check-circle me-2"></i>Data Validation</h6>
+                                        <p>Verifies integrity of incoming data from aircraft systems and external sources.</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="metric-group">
+                                        <h6><i class="fas fa-lock me-2"></i>Encryption System</h6>
+                                        <p>Protects communications with automatic key rotation capabilities.</p>
+                                    </div>
+                                    
+                                    <div class="metric-group">
+                                        <h6><i class="fas fa-life-ring me-2"></i>Backup Systems</h6>
+                                        <p>Redundant systems that activate when primary systems are compromised.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <h5 class="mt-4">Automated Response Protocols</h5>
+                            <ul>
+                                <li>Immediate threat detection and alerting</li>
+                                <li>Automatic system isolation for compromised aircraft</li>
+                                <li>Emergency backup system activation</li>
+                                <li>Real-time threat correlation and analysis</li>
+                                <li>Automated recovery procedures</li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Configuration Section -->
+                <section id="configuration" class="mb-4">
+                    <div class="card professional-card">
+                        <div class="card-header">
+                            <h4 class="mb-0">
+                                <i class="fas fa-cog me-2"></i>Configuration
+                            </h4>
+                        </div>
+                        <div class="card-body">
+                            <h5>Environment Configuration</h5>
+                            <p>Current system configuration:</p>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="metric-group">
+                                        <div class="metric">
+                                            <label>Environment:</label>
+                                            <span>{{ config.environment }}</span>
+                                        </div>
+                                        <div class="metric">
+                                            <label>Debug Mode:</label>
+                                            <span>{{ config.debug }}</span>
+                                        </div>
+                                        <div class="metric">
+                                            <label>Update Interval:</label>
+                                            <span>{{ config.simulator.update_interval }}ms</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="metric-group">
+                                        <div class="metric">
+                                            <label>Max Log Entries:</label>
+                                            <span>{{ config.simulator.max_threat_log_entries }}</span>
+                                        </div>
+                                        <div class="metric">
+                                            <label>Defense Timeout:</label>
+                                            <span>{{ config.simulator.defense_system_timeout }}s</span>
+                                        </div>
+                                        <div class="metric">
+                                            <label>Max Concurrent Attacks:</label>
+                                            <span>{{ config.simulator.max_concurrent_attacks }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <h5 class="mt-4">Security Configuration</h5>
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle me-2"></i>
+                                Security settings are configured for enterprise deployment with HTTPS enforcement, secure session management, and comprehensive audit logging.
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
+    
+    <style>
+        .api-endpoint {
+            margin-bottom: 1rem;
+            padding: 1rem;
+            border-left: 4px solid var(--pro-primary);
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 0.25rem;
+        }
+        
+        .api-endpoint code {
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+        
+        .nav-pills .nav-link {
+            margin-bottom: 0.5rem;
+            border-radius: 0.25rem;
+        }
+        
+        .nav-pills .nav-link.active {
+            background-color: var(--pro-primary);
+        }
+    </style>
+</body>
+</html>

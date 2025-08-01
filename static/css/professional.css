@@ -1,0 +1,446 @@
+/* Professional Aviation Threat Simulator Styles - Master's Level */
+
+:root {
+    --pro-primary: #00d4aa;
+    --pro-secondary: #6c757d;
+    --pro-success: #28a745;
+    --pro-danger: #dc3545;
+    --pro-warning: #ffc107;
+    --pro-info: #17a2b8;
+    --pro-dark: #343a40;
+    --pro-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --pro-card-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --pro-border-radius: 0.5rem;
+}
+
+/* Professional Theme Base */
+.professional-theme {
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    min-height: 100vh;
+    font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Professional Cards */
+.professional-card {
+    border: none;
+    border-radius: var(--pro-border-radius);
+    box-shadow: var(--pro-card-shadow);
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.professional-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+}
+
+.professional-card .card-header {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+/* Status Indicators */
+.status-indicators {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.status-indicator {
+    text-align: center;
+    padding: 0.5rem;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: var(--pro-border-radius);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.status-value {
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: var(--pro-primary);
+}
+
+.status-label {
+    font-size: 0.75rem;
+    color: var(--bs-secondary);
+    margin-top: 0.25rem;
+}
+
+/* Signal Strength Indicator */
+.signal-strength {
+    display: flex;
+    align-items: flex-end;
+    gap: 2px;
+    height: 20px;
+}
+
+.signal-bar {
+    width: 3px;
+    background: var(--pro-success);
+    border-radius: 1px;
+    transition: all 0.3s ease;
+}
+
+.signal-strength .signal-bar:nth-child(1) { height: 25%; }
+.signal-strength .signal-bar:nth-child(2) { height: 50%; }
+.signal-strength .signal-bar:nth-child(3) { height: 75%; }
+.signal-strength .signal-bar:nth-child(4) { height: 100%; }
+
+.signal-strength.weak .signal-bar:nth-child(n+2) {
+    background: var(--bs-dark);
+}
+
+.signal-strength.moderate .signal-bar:nth-child(n+3) {
+    background: var(--bs-dark);
+}
+
+/* Autopilot Indicator */
+.autopilot-indicator {
+    color: var(--pro-success);
+    font-size: 1.1rem;
+}
+
+.autopilot-indicator.disabled {
+    color: var(--bs-secondary);
+}
+
+/* Professional Metrics */
+.metric-group {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: var(--pro-border-radius);
+    padding: 0.75rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.metric {
+    margin-bottom: 0.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.metric:last-child {
+    margin-bottom: 0;
+}
+
+.metric label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--bs-secondary);
+}
+
+.metric span {
+    font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', monospace;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--pro-primary);
+}
+
+/* Professional Attack Grid */
+.attack-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.attack-btn {
+    font-size: 0.75rem;
+    padding: 0.4rem 0.6rem;
+    border-radius: 0.25rem;
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.attack-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 2px 4px rgba(220, 53, 69, 0.3);
+}
+
+.attack-btn:active {
+    transform: scale(0.95);
+}
+
+/* Professional Defense Systems */
+.defense-systems {
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.defense-system-item {
+    padding: 0.75rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    transition: background-color 0.3s ease;
+}
+
+.defense-system-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.defense-system-item:last-child {
+    border-bottom: none;
+}
+
+.defense-badge {
+    font-size: 0.7rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+}
+
+.defense-badge[data-status="normal"] {
+    background: var(--pro-success);
+}
+
+.defense-badge[data-status="compromised"] {
+    background: var(--pro-danger);
+    animation: pulse 2s infinite;
+}
+
+.defense-badge[data-status="degraded"] {
+    background: var(--pro-warning);
+}
+
+.defense-badge[data-status="offline"] {
+    background: var(--pro-secondary);
+}
+
+/* Professional Threat Log */
+.professional-log {
+    max-height: 500px;
+    overflow-y: auto;
+    background: rgba(0, 0, 0, 0.3);
+}
+
+.professional-log::-webkit-scrollbar {
+    width: 6px;
+}
+
+.professional-log::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.professional-log::-webkit-scrollbar-thumb {
+    background: var(--pro-primary);
+    border-radius: 3px;
+}
+
+.threat-entry {
+    padding: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.threat-entry:hover {
+    background: rgba(255, 255, 255, 0.05);
+    transform: translateX(2px);
+}
+
+.threat-entry::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 4px;
+    height: 100%;
+    background: var(--pro-info);
+}
+
+.threat-entry.severity-critical::before {
+    background: var(--pro-danger);
+}
+
+.threat-entry.severity-high::before {
+    background: var(--pro-warning);
+}
+
+.threat-entry.severity-medium::before {
+    background: var(--pro-info);
+}
+
+.threat-entry.severity-info::before {
+    background: var(--pro-success);
+}
+
+.threat-info {
+    margin-bottom: 0.5rem;
+}
+
+.threat-system {
+    font-weight: 600;
+    color: var(--pro-primary);
+    font-size: 0.9rem;
+}
+
+.threat-timestamp {
+    font-size: 0.75rem;
+    color: var(--bs-secondary);
+    font-family: monospace;
+}
+
+.threat-attack {
+    font-weight: 600;
+    margin: 0.5rem 0;
+    color: var(--pro-warning);
+    font-size: 0.85rem;
+}
+
+.threat-description {
+    font-size: 0.8rem;
+    color: var(--bs-light);
+    line-height: 1.4;
+}
+
+/* Professional Gradients */
+.bg-gradient {
+    background: var(--pro-gradient) !important;
+}
+
+/* Professional Animations */
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.slide-in {
+    animation: slideIn 0.5s ease-out;
+}
+
+/* Professional Navigation */
+.navbar-brand .badge {
+    font-size: 0.6rem;
+    vertical-align: super;
+}
+
+/* Professional Responsive Design */
+@media (max-width: 768px) {
+    .attack-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .status-indicator {
+        padding: 0.25rem;
+    }
+    
+    .status-value {
+        font-size: 1rem;
+    }
+    
+    .professional-card {
+        margin-bottom: 1rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .metric {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.25rem;
+    }
+    
+    .status-indicators {
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+}
+
+/* Professional Loading States */
+.loading {
+    position: relative;
+    overflow: hidden;
+}
+
+.loading::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+    0% { left: -100%; }
+    100% { left: 100%; }
+}
+
+/* Professional Error States */
+.error-state {
+    border-color: var(--pro-danger) !important;
+    background: rgba(220, 53, 69, 0.1) !important;
+}
+
+.error-state .card-header {
+    background: rgba(220, 53, 69, 0.2) !important;
+}
+
+/* Professional Success States */
+.success-state {
+    border-color: var(--pro-success) !important;
+    background: rgba(40, 167, 69, 0.1) !important;
+}
+
+.success-state .card-header {
+    background: rgba(40, 167, 69, 0.2) !important;
+}
+
+/* Professional Typography */
+.professional-theme h1,
+.professional-theme h2,
+.professional-theme h3,
+.professional-theme h4,
+.professional-theme h5,
+.professional-theme h6 {
+    font-weight: 600;
+    letter-spacing: -0.025em;
+}
+
+.professional-theme small {
+    opacity: 0.8;
+}
+
+/* Professional Focus States */
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--pro-primary);
+    box-shadow: 0 0 0 0.2rem rgba(0, 212, 170, 0.25);
+}
+
+/* Professional Button Enhancements */
+.btn-primary {
+    background: var(--pro-primary);
+    border-color: var(--pro-primary);
+}
+
+.btn-primary:hover {
+    background: #00b894;
+    border-color: #00b894;
+    transform: translateY(-1px);
+}
+
+.btn-outline-danger:hover {
+    background: var(--pro-danger);
+    border-color: var(--pro-danger);
+    color: white;
+    transform: scale(1.05);
+}
+
+/* Professional Utility Classes */
+.text-pro-primary { color: var(--pro-primary) !important; }
+.bg-pro-primary { background-color: var(--pro-primary) !important; }
+.border-pro-primary { border-color: var(--pro-primary) !important; }

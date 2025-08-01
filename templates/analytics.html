@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aviation Threat Simulator - Analytics Dashboard</title>
+    <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/professional.css') }}" rel="stylesheet">
+</head>
+<body class="professional-theme">
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark border-bottom">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-chart-line me-2"></i>Analytics Dashboard
+            </a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="/">
+                    <i class="fas fa-arrow-left me-1"></i>Back to Simulator
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid mt-3">
+        <!-- Analytics Header -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card professional-card">
+                    <div class="card-header">
+                        <h3 class="mb-0">
+                            <i class="fas fa-analytics me-2"></i>Advanced Threat Analytics
+                        </h3>
+                        <small class="text-muted">Comprehensive cybersecurity analysis and performance metrics</small>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="status-indicator">
+                                    <div class="status-value text-info">{{ performance_metrics.total_aircraft }}</div>
+                                    <div class="status-label">Total Aircraft</div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="status-indicator">
+                                    <div class="status-value text-warning">{{ performance_metrics.active_threats }}</div>
+                                    <div class="status-label">Active Threats</div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="status-indicator">
+                                    <div class="status-value text-success">{{ "%.1f"|format(performance_metrics.defense_effectiveness) }}%</div>
+                                    <div class="status-label">Defense Effectiveness</div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="status-indicator">
+                                    <div class="status-value text-primary">{{ "%.1f"|format(performance_metrics.system_availability) }}%</div>
+                                    <div class="status-label">System Availability</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Fleet Status Grid -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card professional-card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Fleet Status Overview</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            {% for aircraft_id, aircraft in fleet_status.aircraft.items() %}
+                            <div class="col-md-4 mb-3">
+                                <div class="card {% if aircraft.is_compromised %}error-state{% else %}success-state{% endif %}">
+                                    <div class="card-header">
+                                        <div class="d-flex justify-content-between">
+                                            <strong>{{ aircraft.callsign }}</strong>
+                                            <span class="badge {% if aircraft.is_compromised %}bg-danger{% else %}bg-success{% endif %}">
+                                                {{ aircraft.overall_status.title() }}
+                                            </span>
+                                        </div>
+                                        <small class="text-muted">{{ aircraft.model }}</small>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row text-center">
+                                            <div class="col-4">
+                                                <i class="fas fa-satellite {% if aircraft.adsb.compromised %}text-danger{% else %}text-success{% endif %}"></i>
+                                                <div class="small">ADS-B</div>
+                                            </div>
+                                            <div class="col-4">
+                                                <i class="fas fa-cogs {% if aircraft.flight_control.compromised %}text-danger{% else %}text-success{% endif %}"></i>
+                                                <div class="small">Flight</div>
+                                            </div>
+                                            <div class="col-4">
+                                                <i class="fas fa-broadcast-tower {% if aircraft.communications.compromised %}text-danger{% else %}text-success{% endif %}"></i>
+                                                <div class="small">Comm</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Threat Analysis -->
+        <div class="row mb-4">
+            <div class="col-md-8">
+                <div class="card professional-card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Threat Pattern Analysis</h5>
+                    </div>
+                    <div class="card-body">
+                        {% if threat_analysis.analysis %}
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <h6>Analysis Window</h6>
+                                <p class="text-muted">{{ threat_analysis.analysis.analysis_window }}</p>
+                                
+                                <h6>Total Recent Threats</h6>
+                                <p class="text-warning">{{ threat_analysis.analysis.total_recent_threats }}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <h6>Current Threat Level</h6>
+                                <span class="badge bg-{% if threat_analysis.analysis.threat_level == 'CRITICAL' %}danger{% elif threat_analysis.analysis.threat_level == 'HIGH' %}warning{% elif threat_analysis.analysis.threat_level == 'MEDIUM' %}info{% else %}success{% endif %} fs-6">
+                                    {{ threat_analysis.analysis.threat_level }}
+                                </span>
+                            </div>
+                        </div>
+                        
+                        {% if threat_analysis.analysis.system_breakdown %}
+                        <h6>System Breakdown</h6>
+                        <div class="row">
+                            {% for system, count in threat_analysis.analysis.system_breakdown.items() %}
+                            <div class="col-md-4">
+                                <div class="metric">
+                                    <label>{{ system }}:</label>
+                                    <span>{{ count }} threats</span>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                        
+                        {% if threat_analysis.analysis.recommendations %}
+                        <h6 class="mt-3">Recommendations</h6>
+                        <ul class="list-unstyled">
+                            {% for recommendation in threat_analysis.analysis.recommendations %}
+                            <li class="mb-2">
+                                <i class="fas fa-lightbulb text-warning me-2"></i>{{ recommendation }}
+                            </li>
+                            {% endfor %}
+                        </ul>
+                        {% endif %}
+                        {% else %}
+                        <p class="text-muted">No threat analysis data available.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card professional-card">
+                    <div class="card-header">
+                        <h5 class="mb-0">System Health</h5>
+                    </div>
+                    <div class="card-body">
+                        {% if system_health %}
+                        <div class="status-indicator mb-3">
+                            <div class="status-value 
+                                {% if system_health.overall_health == 'EXCELLENT' %}text-success
+                                {% elif system_health.overall_health == 'GOOD' %}text-info
+                                {% elif system_health.overall_health == 'DEGRADED' %}text-warning
+                                {% else %}text-danger{% endif %}">
+                                {{ system_health.overall_health }}
+                            </div>
+                            <div class="status-label">Overall Health</div>
+                        </div>
+                        
+                        <div class="metric-group">
+                            <div class="metric">
+                                <label>Compromised Aircraft:</label>
+                                <span>{{ system_health.compromised_aircraft }}</span>
+                            </div>
+                            <div class="metric">
+                                <label>Active Defenses:</label>
+                                <span>{{ system_health.active_defenses }}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-3">
+                            <h6>Recommendation</h6>
+                            <p class="small text-muted">{{ system_health.recommendation }}</p>
+                        </div>
+                        {% else %}
+                        <p class="text-muted">No system health data available.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Threat Log -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card professional-card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Recent Threat Activity</h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="professional-log" style="max-height: 400px;">
+                            {% for threat in fleet_status.threat_log %}
+                            <div class="threat-entry severity-{{ threat.severity.lower() }}">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div class="threat-info">
+                                        <div class="threat-system">{{ threat.system }}</div>
+                                        <div class="threat-timestamp">{{ threat.timestamp }}</div>
+                                    </div>
+                                    <span class="badge severity-badge-{{ threat.severity.lower() }}">{{ threat.severity }}</span>
+                                </div>
+                                <div class="threat-attack">{{ threat.attack }}</div>
+                                <div class="threat-description">{{ threat.description }}</div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

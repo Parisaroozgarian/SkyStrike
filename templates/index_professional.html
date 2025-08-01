@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aviation Threat Simulator - Professional Edition</title>
+    <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/aviation.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/professional.css') }}" rel="stylesheet">
+</head>
+<body class="professional-theme">
+    <!-- Professional Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark border-bottom">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-plane-departure me-2"></i>
+                Aviation Threat Simulator <span class="badge bg-success ms-2">Pro</span>
+            </a>
+            
+            <div class="navbar-nav ms-auto">
+                <div class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                        <i class="fas fa-user-circle me-1"></i>Professional
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="/analytics"><i class="fas fa-chart-line me-2"></i>Analytics</a></li>
+                        <li><a class="dropdown-item" href="/documentation"><i class="fas fa-book me-2"></i>Documentation</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="/health"><i class="fas fa-heartbeat me-2"></i>System Health</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid mt-3">
+        <!-- Professional Header with Status Indicators -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card bg-dark border-success">
+                    <div class="card-body py-3">
+                        <div class="row align-items-center">
+                            <div class="col-md-6">
+                                <h1 class="h3 mb-0 text-success">
+                                    <i class="fas fa-shield-alt me-2"></i>
+                                    Advanced Threat Simulation Console
+                                </h1>
+                                <small class="text-muted">Master's Level Cybersecurity Platform</small>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="row g-2">
+                                    <div class="col-6 col-md-3">
+                                        <div class="status-indicator">
+                                            <div class="status-value" id="system-uptime">{{ "%.1f"|format((config.simulator.max_threat_log_entries / 1000 * 99.8)) }}%</div>
+                                            <div class="status-label">System Uptime</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-6 col-md-3">
+                                        <div class="status-indicator">
+                                            <div class="status-value text-warning" id="active-threats">{{ threat_log|length }}</div>
+                                            <div class="status-label">Active Threats</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-6 col-md-3">
+                                        <div class="status-indicator">
+                                            <div class="status-value text-info" id="fleet-size">{{ fleet_manager.aircraft|length }}</div>
+                                            <div class="status-label">Fleet Size</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-6 col-md-3">
+                                        <div class="status-indicator">
+                                            <div class="status-value text-success" id="defenses-active">{{ fleet_manager.defense_systems.values()|selectattr('enabled')|list|length }}</div>
+                                            <div class="status-label">Defenses Active</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Professional Control Panel -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="row align-items-center">
+                            <div class="col-md-6">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-sliders-h me-2"></i>Mission Control Center
+                                </h5>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="d-flex justify-content-end gap-2">
+                                    <div class="input-group input-group-sm" style="width: 250px;">
+                                        <label class="input-group-text">Target Aircraft:</label>
+                                        <select id="aircraftSelector" class="form-select">
+                                            {% for aircraft_id, aircraft in fleet_manager.aircraft.items() %}
+                                            <option value="{{ aircraft_id }}" {% if aircraft_id == current_aircraft %}selected{% endif %}>
+                                                {{ aircraft.callsign }} ({{ aircraft.model }})
+                                            </option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <button id="fleetViewBtn" class="btn btn-primary btn-sm">
+                                        <i class="fas fa-list me-1"></i>Fleet Overview
+                                    </button>
+                                    <div class="btn-group">
+                                        <button id="resetAllBtn" class="btn btn-warning btn-sm">
+                                            <i class="fas fa-undo me-1"></i>Reset All
+                                        </button>
+                                        <button id="clearLogBtn" class="btn btn-secondary btn-sm">
+                                            <i class="fas fa-trash me-1"></i>Clear Log
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Fleet Overview Panel (Professional) -->
+        <div class="row" id="fleetOverview" style="display: none;">
+            <div class="col-12">
+                <div class="card mb-4">
+                    <div class="card-header bg-primary">
+                        <h5 class="mb-0">
+                            <i class="fas fa-satellite me-2"></i>Fleet-Wide Threat Analysis Dashboard
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row" id="fleetGrid">
+                            <!-- Fleet cards populated by JavaScript -->
+                        </div>
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <canvas id="fleetThreatChart" width="400" height="100"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Professional Individual Aircraft View -->
+        <div class="row" id="individualView">
+            <!-- Advanced System Monitoring -->
+            <div class="col-lg-8">
+                <div class="row">
+                    <!-- Enhanced ADS-B System -->
+                    <div class="col-md-6 mb-4">
+                        <div class="card h-100 system-card professional-card" id="adsb-card">
+                            <div class="card-header">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h5 class="mb-0">
+                                            <i class="fas fa-satellite me-2"></i>ADS-B Transponder
+                                        </h5>
+                                        <small class="text-muted">Automatic Dependent Surveillance-Broadcast</small>
+                                    </div>
+                                    <div class="status-indicators">
+                                        <span class="status-badge badge" id="adsb-status">Normal</span>
+                                        <div class="signal-strength" id="adsb-signal">
+                                            <div class="signal-bar"></div>
+                                            <div class="signal-bar"></div>
+                                            <div class="signal-bar"></div>
+                                            <div class="signal-bar"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-6">
+                                        <div class="metric-group">
+                                            <div class="metric">
+                                                <label>Position:</label>
+                                                <span id="adsb-position">{{ "%.4f, %.4f"|format(system_states.adsb.latitude, system_states.adsb.longitude) }}</span>
+                                            </div>
+                                            <div class="metric">
+                                                <label>Altitude (AMSL):</label>
+                                                <span id="adsb-alt">{{ system_states.adsb.altitude }} ft</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="metric-group">
+                                            <div class="metric">
+                                                <label>True Heading:</label>
+                                                <span id="adsb-heading">{{ system_states.adsb.heading }}°</span>
+                                            </div>
+                                            <div class="metric">
+                                                <label>Ground Speed:</label>
+                                                <span id="adsb-speed">{{ system_states.adsb.speed }} kts</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Professional Attack Vectors -->
+                                <div class="mt-3">
+                                    <h6 class="text-warning mb-2">
+                                        <i class="fas fa-exclamation-triangle me-1"></i>Threat Vectors
+                                    </h6>
+                                    <div class="attack-grid">
+                                        <button class="btn btn-sm btn-outline-danger attack-btn" 
+                                                onclick="simulateAttack('adsb', 'spoof_location')"
+                                                data-bs-toggle="tooltip" title="GPS Spoofing Attack">
+                                            <i class="fas fa-map-marker-alt me-1"></i>GPS Spoof
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-danger attack-btn" 
+                                                onclick="simulateAttack('adsb', 'spoof_altitude')"
+                                                data-bs-toggle="tooltip" title="Altitude Data Manipulation">
+                                            <i class="fas fa-arrow-down me-1"></i>Alt Spoof
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-danger attack-btn" 
+                                                onclick="simulateAttack('adsb', 'mitm_adsb')"
+                                                data-bs-toggle="tooltip" title="Man-in-the-Middle Interception">
+                                            <i class="fas fa-exchange-alt me-1"></i>MITM
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-danger attack-btn" 
+                                                onclick="simulateAttack('adsb', 'replay_adsb')"
+                                                data-bs-toggle="tooltip" title="Replay Previous Transmissions">
+                                            <i class="fas fa-redo me-1"></i>Replay
+                                        </button>
+                                    </div>
+                                    <button class="btn btn-sm btn-success w-100 mt-2" 
+                                            onclick="resetSystem('adsb')">
+                                        <i class="fas fa-sync-alt me-1"></i>System Recovery
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Enhanced Flight Control System -->
+                    <div class="col-md-6 mb-4">
+                        <div class="card h-100 system-card professional-card" id="flight-control-card">
+                            <div class="card-header">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h5 class="mb-0">
+                                            <i class="fas fa-cogs me-2"></i>Flight Control System
+                                        </h5>
+                                        <small class="text-muted">Primary Flight Controls & Autopilot</small>
+                                    </div>
+                                    <div class="status-indicators">
+                                        <span class="status-badge badge" id="flight-control-status">Normal</span>
+                                        <div class="autopilot-indicator" id="autopilot-status">
+                                            <i class="fas fa-robot" title="Autopilot Status"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-6">
+                                        <div class="metric-group">
+                                            <div class="metric">
+                                                <label>Aileron Trim:</label>
+                                                <span id="fc-aileron">{{ system_states.flight_control.aileron }}°</span>
+                                            </div>
+                                            <div class="metric">
+                                                <label>Elevator Trim:</label>
+                                                <span id="fc-elevator">{{ system_states.flight_control.elevator }}°</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="metric-group">
+                                            <div class="metric">
+                                                <label>Rudder Trim:</label>
+                                                <span id="fc-rudder">{{ system_states.flight_control.rudder }}°</span>
+                                            </div>
+                                            <div class="metric">
+                                                <label>Throttle Setting:</label>
+                                                <span id="fc-throttle">{{ system_states.flight_control.throttle }}%</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Professional Attack Vectors -->
+                                <div class="mt-3">
+                                    <h6 class="text-warning mb-2">
+                                        <i class="fas fa-exclamation-triangle me-1"></i>Threat Vectors
+                                    </h6>
+                                    <div class="attack-grid">
+                                        <button class="btn btn-sm btn-outline-danger attack-btn" 
+                                                onclick="simulateAttack('flight_control', 'jam_inputs')"
+                                                data-bs-toggle="tooltip" title="Control Input Jamming">
+                                            <i class="fas fa-exclamation-triangle me-1"></i>Jam Input
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-danger attack-btn" 
+                                                onclick="simulateAttack('flight_control', 'freeze_controls')"
+                                                data-bs-toggle="tooltip" title="Control Surface Freeze">
+                                            <i class="fas fa-snowflake me-1"></i>Freeze
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-danger attack-btn" 
+                                                onclick="simulateAttack('flight_control', 'mitm_control')"
+                                                data-bs-toggle="tooltip" title="Control Bus Interception">
+                                            <i class="fas fa-exchange-alt me-1"></i>MITM
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-danger attack-btn" 
+                                                onclick="simulateAttack('flight_control', 'replay_control')"
+                                                data-bs-toggle="tooltip" title="Replay Previous Commands">
+                                            <i class="fas fa-redo me-1"></i>Replay
+                                        </button>
+                                    </div>
+                                    <button class="btn btn-sm btn-success w-100 mt-2" 
+                                            onclick="resetSystem('flight_control')">
+                                        <i class="fas fa-sync-alt me-1"></i>System Recovery
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Enhanced Communications System -->
+                    <div class="col-md-6 mb-4">
+                        <div class="card h-100 system-card professional-card" id="communications-card">
+                            <div class="card-header">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h5 class="mb-0">
+                                            <i class="fas fa-broadcast-tower me-2"></i>Communications
+                                        </h5>
+                                        <small class="text-muted">VHF Radio & Data Link Systems</small>
+                                    </div>
+                                    <div class="status-indicators">
+                                        <span class="status-badge badge" id="communications-status">Normal</span>
+                                        <div class="signal-strength" id="comm-signal">
+                                            <div class="signal-bar"></div>
+                                            <div class="signal-bar"></div>
+                                            <div class="signal-bar"></div>
+                                            <div class="signal-bar"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="metric-group">
+                                    <div class="metric">
+                                        <label>Active Frequency:</label>
+                                        <span id="comm-frequency">{{ system_states.communications.frequency }} MHz</span>
+                                    </div>
+                                    <div class="metric">
+                                        <label>Signal Strength:</label>
+                                        <span id="comm-signal-strength">{{ system_states.communications.signal_strength }}%</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="message-display" id="comm-message">{{ system_states.communications.last_message }}</div>
+                                
+                                <!-- Professional Attack Vectors -->
+                                <div class="mt-3">
+                                    <h6 class="text-warning mb-2">
+                                        <i class="fas fa-exclamation-triangle me-1"></i>Threat Vectors
+                                    </h6>
+                                    <div class="attack-grid">
+                                        <button class="btn btn-sm btn-outline-danger attack-btn" 
+                                                onclick="simulateAttack('communications', 'inject_message')"
+                                                data-bs-toggle="tooltip" title="Message Injection Attack">
+                                            <i class="fas fa-syringe me-1"></i>Inject
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-danger attack-btn" 
+                                                onclick="simulateAttack('communications', 'jam_radio')"
+                                                data-bs-toggle="tooltip" title="Radio Frequency Jamming">
+                                            <i class="fas fa-ban me-1"></i>Jam RF
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-danger attack-btn" 
+                                                onclick="simulateAttack('communications', 'mitm_comm')"
+                                                data-bs-toggle="tooltip" title="Communication Interception">
+                                            <i class="fas fa-exchange-alt me-1"></i>MITM
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-danger attack-btn" 
+                                                onclick="simulateAttack('communications', 'replay_comm')"
+                                                data-bs-toggle="tooltip" title="Replay Previous Messages">
+                                            <i class="fas fa-redo me-1"></i>Replay
+                                        </button>
+                                    </div>
+                                    <button class="btn btn-sm btn-success w-100 mt-2" 
+                                            onclick="resetSystem('communications')">
+                                        <i class="fas fa-sync-alt me-1"></i>System Recovery
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Professional Defense Systems -->
+                    <div class="col-md-6 mb-4">
+                        <div class="card h-100 professional-card bg-gradient">
+                            <div class="card-header bg-success">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-shield-alt me-2"></i>Integrated Defense Matrix
+                                </h5>
+                                <small class="text-light">Multi-Layered Security Framework</small>
+                            </div>
+                            <div class="card-body">
+                                <div class="defense-systems">
+                                    {% for name, system in fleet_manager.defense_systems.items() %}
+                                    <div class="defense-system-item" id="defense-{{ name }}">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <strong>{{ name.replace('_', ' ').title() }}</strong>
+                                                <div class="small text-muted">
+                                                    Alerts: <span class="defense-alerts">{{ system.alerts_triggered }}</span> |
+                                                    Active: <span class="defense-activations">{{ system.activations }}</span>
+                                                </div>
+                                            </div>
+                                            <div class="defense-status">
+                                                <span class="badge defense-badge" data-status="{{ system.status.value }}">{{ system.status.value.title() }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                
+                                <div class="mt-3">
+                                    <button class="btn btn-sm btn-info w-100" onclick="analyzeThreats()">
+                                        <i class="fas fa-search me-1"></i>Advanced Threat Analysis
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Professional Threat Intelligence Panel -->
+            <div class="col-lg-4">
+                <div class="card h-100 professional-card">
+                    <div class="card-header bg-dark">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">
+                                <i class="fas fa-bug me-2"></i>Threat Intelligence Feed
+                            </h5>
+                            <span class="badge bg-warning" id="threat-count">{{ threat_log|length }}</span>
+                        </div>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="threat-log professional-log" id="threat-log">
+                            {% for threat in threat_log %}
+                            <div class="threat-entry severity-{{ threat.severity.lower() }}">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div class="threat-info">
+                                        <div class="threat-system">{{ threat.system }}</div>
+                                        <div class="threat-timestamp">{{ threat.timestamp }}</div>
+                                    </div>
+                                    <span class="badge severity-badge-{{ threat.severity.lower() }}">{{ threat.severity }}</span>
+                                </div>
+                                <div class="threat-attack">{{ threat.attack }}</div>
+                                <div class="threat-description">{{ threat.description }}</div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Professional Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="{{ url_for('static', filename='js/simulator_professional.js') }}"></script>
+    
+    <script>
+        // Initialize professional features
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize tooltips
+            const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+            
+            // Initialize professional simulator
+            const simulator = new ProfessionalSimulator();
+            simulator.initialize();
+            
+            console.log('Aviation Threat Simulator - Professional Edition initialized');
+        });
+    </script>
+</body>
+</html>
