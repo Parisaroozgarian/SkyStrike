@@ -169,9 +169,16 @@ class ProfessionalSimulator {
 
     async updateSystemStatus() {
         try {
-            const response = await fetch('/api/system_status');
+            const response = await fetch('/api/system_status', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'same-origin'
+            });
+            
             if (!response.ok) {
-                throw new Error(`HTTP ${response.status}`);
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
             }
             
             const data = await response.json();
@@ -183,6 +190,9 @@ class ProfessionalSimulator {
                 this.updateSignalStrength(data.systems);
                 this.lastUpdateTime = new Date();
                 this.updateConnectionStatus('connected');
+            } else {
+                console.warn('API returned error status:', data.message);
+                this.updateConnectionStatus('error');
             }
             
         } catch (error) {
@@ -620,24 +630,39 @@ async function simulateAttack(system, attackType) {
             headers: {
                 'Content-Type': 'application/json',
             },
+            credentials: 'same-origin',
             body: JSON.stringify({
                 system: system,
                 attack_type: attackType,
-                aircraft_id: professionalSimulator.currentAircraft
+                aircraft_id: professionalSimulator ? professionalSimulator.currentAircraft : 'aircraft_1'
             })
         });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
         
         const data = await response.json();
         
         if (data.status === 'success') {
-            professionalSimulator.showNotification(`Attack executed: ${attackType}`, 'warning');
+            if (professionalSimulator) {
+                professionalSimulator.showNotification(`Attack executed: ${attackType} on ${data.aircraft}`, 'warning');
+            }
+            // Trigger immediate update
+            if (professionalSimulator) {
+                professionalSimulator.updateSystemStatus();
+            }
         } else {
-            professionalSimulator.showNotification(`Attack failed: ${data.message}`, 'error');
+            if (professionalSimulator) {
+                professionalSimulator.showNotification(`Attack failed: ${data.message}`, 'error');
+            }
         }
         
     } catch (error) {
         console.error('Error simulating attack:', error);
-        professionalSimulator.showNotification('Error simulating attack', 'error');
+        if (professionalSimulator) {
+            professionalSimulator.showNotification('Error simulating attack', 'error');
+        }
     }
 }
 
@@ -648,23 +673,36 @@ async function resetSystem(system) {
             headers: {
                 'Content-Type': 'application/json',
             },
+            credentials: 'same-origin',
             body: JSON.stringify({
                 system: system,
-                aircraft_id: professionalSimulator.currentAircraft
+                aircraft_id: professionalSimulator ? professionalSimulator.currentAircraft : 'aircraft_1'
             })
         });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
         
         const data = await response.json();
         
         if (data.status === 'success') {
-            professionalSimulator.showNotification(`${system} system reset`, 'success');
+            if (professionalSimulator) {
+                professionalSimulator.showNotification(`${system} system reset successfully`, 'success');
+                // Trigger immediate update
+                professionalSimulator.updateSystemStatus();
+            }
         } else {
-            professionalSimulator.showNotification(`Reset failed: ${data.message}`, 'error');
+            if (professionalSimulator) {
+                professionalSimulator.showNotification(`Reset failed: ${data.message}`, 'error');
+            }
         }
         
     } catch (error) {
         console.error('Error resetting system:', error);
-        professionalSimulator.showNotification('Error resetting system', 'error');
+        if (professionalSimulator) {
+            professionalSimulator.showNotification('Error resetting system', 'error');
+        }
     }
 }
 

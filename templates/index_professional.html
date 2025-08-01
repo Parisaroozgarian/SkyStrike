@@ -475,17 +475,21 @@
     <script>
         // Initialize professional features
         document.addEventListener('DOMContentLoaded', function() {
-            // Initialize tooltips
-            const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-            tooltipTriggerList.map(function (tooltipTriggerEl) {
-                return new bootstrap.Tooltip(tooltipTriggerEl);
-            });
-            
-            // Initialize professional simulator
-            const simulator = new ProfessionalSimulator();
-            simulator.initialize();
-            
-            console.log('Aviation Threat Simulator - Professional Edition initialized');
+            try {
+                // Initialize tooltips
+                const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+                tooltipTriggerList.map(function (tooltipTriggerEl) {
+                    return new bootstrap.Tooltip(tooltipTriggerEl);
+                });
+                
+                // Initialize professional simulator
+                window.professionalSimulator = new ProfessionalSimulator();
+                window.professionalSimulator.initialize();
+                
+                console.log('Aviation Threat Simulator - Professional Edition initialized');
+            } catch (error) {
+                console.error('Error initializing professional simulator:', error);
+            }
         });
     </script>
 </body>
