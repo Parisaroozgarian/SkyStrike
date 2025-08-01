@@ -169,6 +169,7 @@ class ProfessionalSimulator {
 
     async updateSystemStatus() {
         try {
+            console.log('Updating system status...');
             const response = await fetch('/api/system_status', {
                 method: 'GET',
                 headers: {
@@ -182,6 +183,7 @@ class ProfessionalSimulator {
             }
             
             const data = await response.json();
+            console.log('System status data:', data);
             
             if (data.status === 'success') {
                 this.updateSystemDisplays(data.systems);
@@ -190,6 +192,7 @@ class ProfessionalSimulator {
                 this.updateSignalStrength(data.systems);
                 this.lastUpdateTime = new Date();
                 this.updateConnectionStatus('connected');
+                console.log('System status updated successfully');
             } else {
                 console.warn('API returned error status:', data.message);
                 this.updateConnectionStatus('error');
@@ -225,6 +228,8 @@ class ProfessionalSimulator {
     }
 
     updateSystemDisplays(systems) {
+        console.log('Updating system displays with:', systems);
+        
         // Update ADS-B system
         if (systems.adsb) {
             this.updateElement('adsb-position', `${systems.adsb.latitude.toFixed(4)}, ${systems.adsb.longitude.toFixed(4)}`);
@@ -661,13 +666,18 @@ class ProfessionalSimulator {
     }
 
     showNotification(message, type = 'info') {
+        console.log(`Notification: ${type} - ${message}`);
+        
         // Create professional toast notification
         const toast = document.createElement('div');
-        toast.className = `alert alert-${type === 'success' ? 'success' : type === 'error' ? 'danger' : 'info'} position-fixed`;
-        toast.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+        const alertType = type === 'success' ? 'success' : type === 'error' ? 'danger' : type === 'warning' ? 'warning' : 'info';
+        const iconType = type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-triangle' : type === 'warning' ? 'exclamation-triangle' : 'info-circle';
+        
+        toast.className = `alert alert-${alertType} position-fixed`;
+        toast.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px; opacity: 0.95;';
         toast.innerHTML = `
             <div class="d-flex align-items-center">
-                <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-triangle' : 'info-circle'} me-2"></i>
+                <i class="fas fa-${iconType} me-2"></i>
                 ${message}
                 <button type="button" class="btn-close ms-auto" onclick="this.parentElement.parentElement.remove()"></button>
             </div>
@@ -687,6 +697,9 @@ class ProfessionalSimulator {
         const element = document.getElementById(id);
         if (element) {
             element.textContent = value;
+            console.log(`Updated element ${id} with value: ${value}`);
+        } else {
+            console.warn(`Element with id '${id}' not found`);
         }
     }
 }
@@ -717,8 +730,10 @@ async function simulateAttack(system, attackType) {
         if (data.status === 'success') {
             if (simulator) {
                 simulator.showNotification(`Attack executed: ${attackType} on ${data.aircraft}`, 'warning');
-                // Trigger immediate update
-                simulator.updateSystemStatus();
+                // Force immediate update with delay to ensure backend processing
+                setTimeout(() => {
+                    simulator.updateSystemStatus();
+                }, 500);
             }
         } else {
             if (simulator) {
