@@ -71,7 +71,7 @@
                                     </div>
                                 </div>
                                 <div class="mt-3">
-                                    <div class="btn-group w-100" role="group">
+                                    <div class="btn-group w-100 mb-2" role="group">
                                         <button class="btn btn-sm btn-danger attack-btn" 
                                                 onclick="simulateAttack('adsb', 'spoof_location')">
                                             <i class="fas fa-map-marker-alt me-1"></i>Spoof Location
@@ -81,7 +81,17 @@
                                             <i class="fas fa-arrow-down me-1"></i>Spoof Altitude
                                         </button>
                                     </div>
-                                    <button class="btn btn-sm btn-success w-100 mt-2" 
+                                    <div class="btn-group w-100 mb-2" role="group">
+                                        <button class="btn btn-sm btn-danger attack-btn" 
+                                                onclick="simulateAttack('adsb', 'mitm_adsb')">
+                                            <i class="fas fa-exchange-alt me-1"></i>MitM Attack
+                                        </button>
+                                        <button class="btn btn-sm btn-danger attack-btn" 
+                                                onclick="simulateAttack('adsb', 'replay_adsb')">
+                                            <i class="fas fa-redo me-1"></i>Replay Attack
+                                        </button>
+                                    </div>
+                                    <button class="btn btn-sm btn-success w-100" 
                                             onclick="resetSystem('adsb')">
                                         <i class="fas fa-sync-alt me-1"></i>Reset ADS-B
                                     </button>
@@ -123,7 +133,7 @@
                                     </div>
                                 </div>
                                 <div class="mt-3">
-                                    <div class="btn-group w-100" role="group">
+                                    <div class="btn-group w-100 mb-2" role="group">
                                         <button class="btn btn-sm btn-danger attack-btn" 
                                                 onclick="simulateAttack('flight_control', 'jam_inputs')">
                                             <i class="fas fa-exclamation-triangle me-1"></i>Jam Inputs
@@ -133,7 +143,17 @@
                                             <i class="fas fa-pause me-1"></i>Freeze Controls
                                         </button>
                                     </div>
-                                    <button class="btn btn-sm btn-success w-100 mt-2" 
+                                    <div class="btn-group w-100 mb-2" role="group">
+                                        <button class="btn btn-sm btn-danger attack-btn" 
+                                                onclick="simulateAttack('flight_control', 'mitm_control')">
+                                            <i class="fas fa-exchange-alt me-1"></i>MitM Attack
+                                        </button>
+                                        <button class="btn btn-sm btn-danger attack-btn" 
+                                                onclick="simulateAttack('flight_control', 'replay_control')">
+                                            <i class="fas fa-redo me-1"></i>Replay Attack
+                                        </button>
+                                    </div>
+                                    <button class="btn btn-sm btn-success w-100" 
                                             onclick="resetSystem('flight_control')">
                                         <i class="fas fa-sync-alt me-1"></i>Reset Controls
                                     </button>
@@ -165,7 +185,7 @@
                                     <div class="message-display" id="comm-message">{{ system_states.communications.last_message }}</div>
                                 </div>
                                 <div class="mt-3">
-                                    <div class="btn-group w-100" role="group">
+                                    <div class="btn-group w-100 mb-2" role="group">
                                         <button class="btn btn-sm btn-danger attack-btn" 
                                                 onclick="simulateAttack('communications', 'inject_message')">
                                             <i class="fas fa-exclamation-circle me-1"></i>Inject Message
@@ -175,7 +195,17 @@
                                             <i class="fas fa-broadcast-tower me-1"></i>Jam Radio
                                         </button>
                                     </div>
-                                    <button class="btn btn-sm btn-success w-100 mt-2" 
+                                    <div class="btn-group w-100 mb-2" role="group">
+                                        <button class="btn btn-sm btn-danger attack-btn" 
+                                                onclick="simulateAttack('communications', 'mitm_comms')">
+                                            <i class="fas fa-exchange-alt me-1"></i>MitM Attack
+                                        </button>
+                                        <button class="btn btn-sm btn-danger attack-btn" 
+                                                onclick="simulateAttack('communications', 'replay_comms')">
+                                            <i class="fas fa-redo me-1"></i>Replay Attack
+                                        </button>
+                                    </div>
+                                    <button class="btn btn-sm btn-success w-100" 
                                             onclick="resetSystem('communications')">
                                         <i class="fas fa-sync-alt me-1"></i>Reset Comms
                                     </button>
@@ -202,6 +232,90 @@
                                     <small class="text-muted">
                                         Position: <span id="grid-position">Center</span>
                                     </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Defense Systems Panel -->
+                    <div class="col-md-6 mb-4">
+                        <div class="card h-100">
+                            <div class="card-header">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-shield-alt me-2"></i>Defense Systems
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-6">
+                                        <div class="defense-system">
+                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                <label class="form-label mb-0">Intrusion Detection</label>
+                                                <div class="form-check form-switch">
+                                                    <input class="form-check-input defense-toggle" type="checkbox" 
+                                                           id="ids-toggle" data-defense="intrusion_detection" checked>
+                                                </div>
+                                            </div>
+                                            <small class="defense-status" id="ids-status">Active</small>
+                                            <small class="defense-metric" id="ids-metric">Alerts: 0</small>
+                                        </div>
+                                        
+                                        <div class="defense-system">
+                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                <label class="form-label mb-0">Data Validation</label>
+                                                <div class="form-check form-switch">
+                                                    <input class="form-check-input defense-toggle" type="checkbox" 
+                                                           id="validation-toggle" data-defense="data_validation" checked>
+                                                </div>
+                                            </div>
+                                            <small class="defense-status" id="validation-status">Active</small>
+                                            <small class="defense-metric" id="validation-metric">Failures: 0</small>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-6">
+                                        <div class="defense-system">
+                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                <label class="form-label mb-0">Encryption</label>
+                                                <div class="form-check form-switch">
+                                                    <input class="form-check-input defense-toggle" type="checkbox" 
+                                                           id="encryption-toggle" data-defense="encryption" checked>
+                                                </div>
+                                            </div>
+                                            <small class="defense-status" id="encryption-status">Active</small>
+                                            <small class="defense-metric" id="encryption-metric">Rotations: 0</small>
+                                        </div>
+                                        
+                                        <div class="defense-system">
+                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                <label class="form-label mb-0">Backup Systems</label>
+                                                <div class="form-check form-switch">
+                                                    <input class="form-check-input defense-toggle" type="checkbox" 
+                                                           id="backup-toggle" data-defense="backup_systems" checked>
+                                                </div>
+                                            </div>
+                                            <small class="defense-status" id="backup-status">Standby</small>
+                                            <small class="defense-metric" id="backup-metric">Activations: 0</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="mt-3">
+                                    <h6 class="mb-2">Emergency Countermeasures</h6>
+                                    <div class="btn-group w-100 mb-2" role="group">
+                                        <button class="btn btn-sm btn-warning countermeasure-btn" 
+                                                onclick="activateCountermeasure('emergency_protocol')">
+                                            <i class="fas fa-exclamation-triangle me-1"></i>Emergency Protocol
+                                        </button>
+                                        <button class="btn btn-sm btn-info countermeasure-btn" 
+                                                onclick="activateCountermeasure('isolate_systems')">
+                                            <i class="fas fa-network-wired me-1"></i>Isolate Systems
+                                        </button>
+                                    </div>
+                                    <button class="btn btn-sm btn-primary w-100 countermeasure-btn" 
+                                            onclick="activateCountermeasure('backup_navigation')">
+                                        <i class="fas fa-compass me-1"></i>Backup Navigation
+                                    </button>
                                 </div>
                             </div>
                         </div>

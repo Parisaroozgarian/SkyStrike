@@ -184,6 +184,57 @@
     }
 }
 
+/* Defense Systems Styling */
+.defense-system {
+    padding: 0.75rem;
+    background-color: var(--bs-dark);
+    border-radius: 0.375rem;
+    border: 1px solid var(--bs-border-color);
+    margin-bottom: 0.75rem;
+}
+
+.defense-status {
+    display: block;
+    font-weight: 600;
+    color: var(--bs-success);
+    font-size: 0.75rem;
+    margin-bottom: 0.25rem;
+}
+
+.defense-status.disabled {
+    color: var(--bs-danger);
+}
+
+.defense-status.alert {
+    color: var(--bs-warning);
+    animation: pulse 2s infinite;
+}
+
+.defense-status.validating {
+    color: var(--bs-info);
+}
+
+.defense-status.rotating_keys {
+    color: var(--bs-warning);
+}
+
+.defense-metric {
+    display: block;
+    font-family: 'Courier New', monospace;
+    font-size: 0.7rem;
+    color: var(--bs-secondary);
+}
+
+.form-check-input:checked {
+    background-color: var(--bs-success);
+    border-color: var(--bs-success);
+}
+
+.countermeasure-btn {
+    font-size: 0.75rem;
+    padding: 0.375rem 0.5rem;
+}
+
 /* Loading states */
 .loading {
     opacity: 0.6;

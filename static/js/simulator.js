@@ -29,6 +29,15 @@ class AviationSimulator {
         document.getElementById('clearLogBtn').addEventListener('click', () => {
             this.clearLog();
         });
+
+        // Defense system toggles
+        document.querySelectorAll('.defense-toggle').forEach(toggle => {
+            toggle.addEventListener('change', (e) => {
+                const defenseType = e.target.getAttribute('data-defense');
+                const enabled = e.target.checked;
+                this.toggleDefense(defenseType, enabled);
+            });
+        });
     }
 
     startUpdates() {
@@ -51,6 +60,7 @@ class AviationSimulator {
             const data = await response.json();
             
             this.updateSystemDisplays(data.systems);
+            this.updateDefenseDisplays(data.defense_systems);
             this.updateThreatLog(data.threat_log);
             this.updateAircraftPosition(data.systems.adsb);
             
@@ -125,6 +135,124 @@ class AviationSimulator {
             
             threatLog.appendChild(entry);
         });
+    }
+
+    updateDefenseDisplays(defenseData) {
+        // Update Intrusion Detection System
+        const idsStatus = document.getElementById('ids-status');
+        const idsMetric = document.getElementById('ids-metric');
+        const idsToggle = document.getElementById('ids-toggle');
+        
+        if (defenseData.intrusion_detection) {
+            idsStatus.textContent = defenseData.intrusion_detection.status.replace('_', ' ').toUpperCase();
+            idsStatus.className = `defense-status ${defenseData.intrusion_detection.status}`;
+            idsMetric.textContent = `Alerts: ${defenseData.intrusion_detection.alerts_triggered}`;
+            idsToggle.checked = defenseData.intrusion_detection.enabled;
+        }
+
+        // Update Data Validation System
+        const validationStatus = document.getElementById('validation-status');
+        const validationMetric = document.getElementById('validation-metric');
+        const validationToggle = document.getElementById('validation-toggle');
+        
+        if (defenseData.data_validation) {
+            validationStatus.textContent = defenseData.data_validation.status.replace('_', ' ').toUpperCase();
+            validationStatus.className = `defense-status ${defenseData.data_validation.status}`;
+            validationMetric.textContent = `Failures: ${defenseData.data_validation.validation_failures}`;
+            validationToggle.checked = defenseData.data_validation.enabled;
+        }
+
+        // Update Encryption System
+        const encryptionStatus = document.getElementById('encryption-status');
+        const encryptionMetric = document.getElementById('encryption-metric');
+        const encryptionToggle = document.getElementById('encryption-toggle');
+        
+        if (defenseData.encryption) {
+            encryptionStatus.textContent = defenseData.encryption.status.replace('_', ' ').toUpperCase();
+            encryptionStatus.className = `defense-status ${defenseData.encryption.status}`;
+            encryptionMetric.textContent = `Rotations: ${defenseData.encryption.key_rotations}`;
+            encryptionToggle.checked = defenseData.encryption.enabled;
+        }
+
+        // Update Backup Systems
+        const backupStatus = document.getElementById('backup-status');
+        const backupMetric = document.getElementById('backup-metric');
+        const backupToggle = document.getElementById('backup-toggle');
+        
+        if (defenseData.backup_systems) {
+            backupStatus.textContent = defenseData.backup_systems.status.replace('_', ' ').toUpperCase();
+            backupStatus.className = `defense-status ${defenseData.backup_systems.status}`;
+            backupMetric.textContent = `Activations: ${defenseData.backup_systems.activations}`;
+            backupToggle.checked = defenseData.backup_systems.enabled;
+        }
+    }
+
+    async toggleDefense(defenseType, enabled) {
+        try {
+            const response = await fetch('/api/toggle_defense', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    defense_type: defenseType,
+                    enabled: enabled
+                })
+            });
+            
+            const result = await response.json();
+            
+            if (result.status === 'success') {
+                // Force immediate update
+                await this.updateSystemStatus();
+                
+                const action = enabled ? 'enabled' : 'disabled';
+                this.showNotification(`Defense system ${action}`, 'info');
+            } else {
+                this.showNotification('Failed to toggle defense system', 'danger');
+            }
+            
+        } catch (error) {
+            console.error('Error toggling defense system:', error);
+            this.showNotification('Error toggling defense system', 'danger');
+        }
+    }
+
+    async activateCountermeasure(countermeasure) {
+        try {
+            // Disable countermeasure buttons temporarily
+            const countermeasureButtons = document.querySelectorAll('.countermeasure-btn');
+            countermeasureButtons.forEach(btn => btn.disabled = true);
+            
+            const response = await fetch('/api/activate_countermeasure', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    countermeasure: countermeasure
+                })
+            });
+            
+            const result = await response.json();
+            
+            if (result.status === 'success') {
+                // Force immediate update
+                await this.updateSystemStatus();
+                
+                this.showNotification(`Countermeasure activated: ${countermeasure.replace('_', ' ')}`, 'warning');
+            } else {
+                this.showNotification('Failed to activate countermeasure', 'danger');
+            }
+            
+        } catch (error) {
+            console.error('Error activating countermeasure:', error);
+            this.showNotification('Error activating countermeasure', 'danger');
+        } finally {
+            // Re-enable countermeasure buttons
+            const countermeasureButtons = document.querySelectorAll('.countermeasure-btn');
+            countermeasureButtons.forEach(btn => btn.disabled = false);
+        }
     }
 
     updateAircraftPosition(adsbData = null) {
@@ -280,6 +408,10 @@ function simulateAttack(system, attackType) {
 
 function resetSystem(system) {
     window.aviationSimulator.resetSystem(system);
+}
+
+function activateCountermeasure(countermeasure) {
+    window.aviationSimulator.activateCountermeasure(countermeasure);
 }
 
 // Initialize simulator when DOM is loaded

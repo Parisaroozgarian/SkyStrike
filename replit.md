@@ -32,6 +32,19 @@ Preferred communication style: Simple, everyday language.
 - **Flight Control Monitoring**: Tracks control surface positions (aileron, elevator, rudder) and throttle settings
 - **Communications System**: Monitors radio frequency, signal strength, and message logs
 - **Threat Detection**: Compromise flags and status indicators for each system component
+- **Defense Systems**: Intrusion detection, data validation, encryption, and backup systems with real-time monitoring
+
+## Attack Vectors
+- **Basic Attacks**: Location/altitude spoofing, control input jamming/freezing, message injection, radio jamming
+- **Advanced Attacks**: Man-in-the-middle attacks on all systems, replay attacks using old data/commands
+- **Sophisticated Threats**: Multi-vector attacks targeting communication protocols and control systems
+
+## Defense Mechanisms
+- **Intrusion Detection System**: Monitors for unauthorized access and suspicious activities
+- **Data Validation**: Verifies integrity of incoming data from aircraft systems
+- **Encryption System**: Protects communications with automatic key rotation capabilities
+- **Backup Systems**: Redundant systems that activate when primary systems are compromised
+- **Emergency Countermeasures**: Manual override protocols including system isolation and backup navigation
 
 ## External Dependencies
 
