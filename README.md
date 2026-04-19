@@ -1,4 +1,3 @@
-bashcat > README.md << 'EOF'
 # SkyStrike ✈️
 
 A professional aviation cybersecurity threat simulation platform built for studying and demonstrating real-world cyber attack vectors on aircraft systems.
